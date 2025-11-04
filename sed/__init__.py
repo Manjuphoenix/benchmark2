@@ -3,7 +3,7 @@ from . import data  # register all new datasets
 from . import modeling
 
 # config
-from .config import add_sed_config
+from .config import add_sed_config, add_lora_config
 
 # dataset loading
 from .data.dataset_mappers.detr_panoptic_dataset_mapper import DETRPanopticDatasetMapper

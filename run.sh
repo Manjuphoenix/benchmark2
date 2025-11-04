@@ -32,4 +32,4 @@ python train_net.py --config $config \
  OUTPUT_DIR $output \
  $opts
 
-sh eval.sh $config $gpus $output $opts
+# sh eval.sh $config $gpus $output $opts

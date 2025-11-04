@@ -90,13 +90,29 @@ class SED(nn.Module):
                 params.requires_grad = finetune_backbone
 
         self.sliding_window = sliding_window
-        # self.clip_resolution = (384, 384) if clip_pretrained == "ViT-B/16" else (336, 336)
+
+        self.clip_resolution = (384, 384) if clip_pretrained == "Convnext-B" else (336, 336)
         self.clip_resolution = (768, 768)
         self.sequential = False
         del self.backbone
         self.in_features = in_features
         self.fast_inference = fast_inference
         self.clip_finetune = clip_finetune
+        
+        self.layer_indexes = [0, 3]  # if clip_pretrained == "ViT-B/16" else [7, 15] 
+        self.layers = []
+        for l in self.layer_indexes:
+            self.sem_seg_head.predictor.clip_model.visual.trunk.stages[l].register_forward_hook(lambda m, _, o: self.layers.append(o))
+
+
+    def reset_forward_hooks(self):
+        """
+        Reset the hooks after LoRAs are attached to resblocks (which disables previously set hooks)
+        """
+        self.layers = []
+        for l in self.layer_indexes:
+            self.sem_seg_head.predictor.clip_model.visual.trunk.stages[l].register_forward_hook(lambda m, _, o: self.layers.append(o))
+            
 
     @classmethod
     def from_config(cls, cfg):
@@ -146,6 +162,8 @@ class SED(nn.Module):
                     The prediction has shape KxHxW that represents the logits of
                     each class for each pixel.
         """
+
+        torch.cuda.memory._record_memory_history(max_entries=100000)
         images = [x["image"].to(self.device) for x in batched_inputs]
         self.sliding_window = False
         if not self.training:
@@ -174,6 +192,7 @@ class SED(nn.Module):
         if self.training:
             print_flag = False
             for name, param in self.named_parameters():
+                # print(name, "------------------", param.requires_grad)
                 if param.grad == None and param.requires_grad:
                     print(name)
                     print_flag = True
@@ -193,6 +212,9 @@ class SED(nn.Module):
                 _targets[mask] = _onehot
                 loss = F.binary_cross_entropy_with_logits(output_, _targets)
                 losses.update({f"loss_sem_seg_{i}" : loss})
+                
+            torch.cuda.memory._dump_snapshot("/home/1SED/profiler.pickle")
+            torch.cuda.memory._record_memory_history(enabled=None)
             return losses
         else:
             if self.fast_inference:
