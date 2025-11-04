@@ -35,6 +35,9 @@ sh run.sh [CONFIG] [NUM_GPUS] [OUTPUT_DIR] [OPTS]
 sh run.sh configs/convnextB_768.yaml 4 output/
 # For ConvNeXt-L variant
 sh run.sh configs/convnextL_768.yaml 4 output/
+
+# LORA variant:
+sh run.sh configs/convnextB_768.yaml 1  output/acdc-rain/ MODEL.LORA.NAME acdc-rain
 ```
 
 ## Evaluation
