@@ -164,6 +164,8 @@ class SED(nn.Module):
         """
 
         torch.cuda.memory._record_memory_history(max_entries=100000)
+        # print("----____-----___---____----_____", torch.cuda.memory_summary(), "-___--------_____----____---____-")
+
         images = [x["image"].to(self.device) for x in batched_inputs]
         self.sliding_window = False
         if not self.training:
@@ -200,6 +202,9 @@ class SED(nn.Module):
                 print("--------------------------------------------------------------------\n")
             targets = torch.stack([x["sem_seg"].to(self.device) for x in batched_inputs], dim=0)
             num_classes = outputs[0].shape[1]
+            # print("-___---_____----__---___-", num_classes, "-__---____--____--")
+            # print("-___----____--______---", targets.shape, "-_----____---____--")
+            # import ipdb; ipdb.set_trace()
             mask = targets != self.sem_seg_head.ignore_value
             losses = {}
             for i, output_ in enumerate(outputs):
@@ -211,10 +216,14 @@ class SED(nn.Module):
                 _onehot = F.one_hot(targets[mask], num_classes=num_classes).float()
                 _targets[mask] = _onehot
                 loss = F.binary_cross_entropy_with_logits(output_, _targets)
+
                 losses.update({f"loss_sem_seg_{i}" : loss})
                 
             torch.cuda.memory._dump_snapshot("/home/1SED/profiler.pickle")
             torch.cuda.memory._record_memory_history(enabled=None)
+            import gc
+            gc.collect()
+            torch.cuda.empty_cache()
             return losses
         else:
             if self.fast_inference:

@@ -51,8 +51,10 @@ DATASETS:
   # TEST: ("coco_2017_test_stuff_all_sem_seg",)
   # TRAIN: ("ade20k_150_train_sem_seg",)
   # TEST: ("ade20k_150_test_sem_seg",)
-  TRAIN: ("acdc-rain_sem_seg_train","acdc-fog_sem_seg_train","acdc-snow_sem_seg_train","acdc-night_sem_seg_train")
-  TEST: ("IE_Segmentation_sem_seg_val",)
+  # TRAIN: ("acdc-rain_sem_seg_train","acdc-fog_sem_seg_train","acdc-snow_sem_seg_train","acdc-night_sem_seg_train")
+  TRAIN: ("acdc-rain_sem_seg_train",)
+  TEST: ("acdc-rain_sem_seg_val",)
+  # TEST: ("IE_Segmentation_sem_seg_val",)
 SOLVER:
   IMS_PER_BATCH: 4
   BASE_LR: 0.0002

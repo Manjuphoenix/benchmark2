@@ -53,6 +53,7 @@ def backward(total_loss, scaler):
 
 
 def train_one_epoch(model, data, epoch, optimizer, scaler, scheduler, args, tb_writer=None):
+    print(HIHUI)
     device = torch.device(args.device)
     autocast = get_autocast(args.precision)
     cast_dtype = get_cast_dtype(args.precision)
@@ -90,7 +91,6 @@ def train_one_epoch(model, data, epoch, optimizer, scaler, scheduler, args, tb_w
         texts = texts.to(device=device, non_blocking=True)
 
         data_time_m.update(time.time() - end)
-        optimizer.zero_grad()
 
         if args.accum_freq == 1:
             with autocast():

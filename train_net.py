@@ -128,8 +128,10 @@ class SemSegEvaluator(SemSegEvaluator):
             with PathManager.open(file_path, "w") as f:
                 f.write(json.dumps(self._predictions))
 
+        import ipdb; ipdb.set_trace()
         acc = np.full(self._num_classes, np.nan, dtype=float)
         iou = np.full(self._num_classes, np.nan, dtype=float)
+        
         tp = self._conf_matrix.diagonal()[:-1].astype(float)
         pos_gt = np.sum(self._conf_matrix[:-1, :-1], axis=0).astype(float)
         class_weights = pos_gt / np.sum(pos_gt)

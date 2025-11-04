@@ -7,6 +7,9 @@ from einops.layers.torch import Rearrange
 from .convnext import ConvNextBlock, ConvNextV2Block
 from timm.layers import PatchEmbed, Mlp, DropPath, to_2tuple, to_ntuple, trunc_normal_, _assert
 
+from torch.utils.checkpoint import checkpoint
+
+
 def window_partition(x, window_size: int):
     """
     Args:
@@ -421,7 +424,8 @@ class Bottleneck(nn.Module):
         self.bn2 = norm_layer(width)
         self.conv3 = conv1x1(width, planes * self.expansion)
         self.bn3 = norm_layer(planes * self.expansion)
-        self.relu = nn.ReLU(inplace=True)
+        # self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU()
         self.downsample = downsample
         self.stride = stride
 
@@ -497,10 +501,12 @@ class DoubleConv(nn.Module):
         self.double_conv = nn.Sequential(
             nn.Conv2d(in_channels, mid_channels, kernel_size=3, padding=1, bias=False),
             nn.GroupNorm(mid_channels // 16, mid_channels),
-            nn.ReLU(inplace=True),
+            # nn.ReLU(inplace=True),
+            nn.ReLU(),
             nn.Conv2d(mid_channels, out_channels, kernel_size=3, padding=1, bias=False),
             nn.GroupNorm(mid_channels // 16, mid_channels),
-            nn.ReLU(inplace=True)
+            # nn.ReLU(inplace=True)
+            nn.ReLU()
         )
 
     def forward(self, x):
@@ -564,10 +570,14 @@ class Aggregator(nn.Module):
         kernel_size=(7, 7, 7),
         fast_inference=False,
         topK=1,
+        use_checkpoint=False,
     ) -> None:
         super().__init__()
         self.num_layers = num_layers
         self.hidden_dim = hidden_dim
+
+        self.use_checkpoint = use_checkpoint
+
 
         # self.layers = nn.ModuleList([
         #     AggregatorLayer(
@@ -657,21 +667,78 @@ class Aggregator(nn.Module):
         corr_embed = rearrange(corr_embed, '(B T) C H W -> B C T H W', B=B)
         return corr_embed
 
+    # def conv_decoder(self, x, text_guidance, guidance, corr_guidance):
+    #     B = x.shape[0]
+    #     corr_embed = rearrange(x, 'B C T H W -> (B T) C H W')
+    #     mask_aux = self.head0(corr_embed.detach())
+    #     mask_aux = rearrange(mask_aux, '(B T) () H W -> B T H W', B=B)
+    #     corr_embed = self.decoder1(corr_embed, text_guidance[0], guidance[0], corr_guidance[0])
+    #     mask_aux0 = self.head1(corr_embed.detach())
+    #     mask_aux0 = rearrange(mask_aux0, '(B T) () H W -> B T H W', B=B)
+    #     corr_embed = self.decoder2(corr_embed, text_guidance[1], guidance[1], corr_guidance[1])
+    #     mask_aux1 = self.head2(corr_embed.detach())
+    #     mask_aux1 = rearrange(mask_aux1, '(B T) () H W -> B T H W', B=B)
+    #     corr_embed = self.decoder3(corr_embed, text_guidance[2], guidance[2], corr_guidance[2])
+    #     corr_embed = self.head(corr_embed)
+    #     corr_embed = rearrange(corr_embed, '(B T) () H W -> B T H W', B=B)
+    #     return corr_embed, mask_aux, mask_aux0, mask_aux1
+    
+    # def conv_decoder(self, x, text_guidance, guidance, corr_guidance):
+    #     with torch.no_grad():
+    #         B = x.shape[0]
+    #         corr_embed = rearrange(x, 'B C T H W -> (B T) C H W')
+    #         # Compute auxiliary masks WITHOUT gradients
+    #         with torch.no_grad():
+    #             mask_aux = self.head0(corr_embed)
+    #             mask_aux = rearrange(mask_aux, '(B T) () H W -> B T H W', B=B)
+            
+    #         corr_embed = self.decoder1(corr_embed, text_guidance[0], guidance[0], corr_guidance[0])
+            
+    #         with torch.no_grad():
+    #             mask_aux0 = self.head1(corr_embed)
+    #             mask_aux0 = rearrange(mask_aux0, '(B T) () H W -> B T H W', B=B)
+            
+    #         corr_embed = self.decoder2(corr_embed, text_guidance[1], guidance[1], corr_guidance[1])
+            
+    #         with torch.no_grad():
+    #             mask_aux1 = self.head2(corr_embed)
+    #             mask_aux1 = rearrange(mask_aux1, '(B T) () H W -> B T H W', B=B)
+            
+    #         corr_embed = self.decoder3(corr_embed, text_guidance[2], guidance[2], corr_guidance[2])
+    #         corr_embed = self.head(corr_embed)
+    #         corr_embed = rearrange(corr_embed, '(B T) () H W -> B T H W', B=B)
+            
+    #         return corr_embed, mask_aux.detach(), mask_aux0.detach(), mask_aux1.detach()
+        
     def conv_decoder(self, x, text_guidance, guidance, corr_guidance):
         B = x.shape[0]
         corr_embed = rearrange(x, 'B C T H W -> (B T) C H W')
-        mask_aux = self.head0(corr_embed.detach())
-        mask_aux = rearrange(mask_aux, '(B T) () H W -> B T H W', B=B)
+        
+        # Compute auxiliary masks WITHOUT gradients
+        with torch.no_grad():
+            mask_aux = self.head0(corr_embed)
+            mask_aux = rearrange(mask_aux, '(B T) () H W -> B T H W', B=B)
+        
         corr_embed = self.decoder1(corr_embed, text_guidance[0], guidance[0], corr_guidance[0])
-        mask_aux0 = self.head1(corr_embed.detach())
-        mask_aux0 = rearrange(mask_aux0, '(B T) () H W -> B T H W', B=B)
+        
+        with torch.no_grad():
+            mask_aux0 = self.head1(corr_embed)
+            mask_aux0 = rearrange(mask_aux0, '(B T) () H W -> B T H W', B=B)
+        
         corr_embed = self.decoder2(corr_embed, text_guidance[1], guidance[1], corr_guidance[1])
-        mask_aux1 = self.head2(corr_embed.detach())
-        mask_aux1 = rearrange(mask_aux1, '(B T) () H W -> B T H W', B=B)
+        
+        with torch.no_grad():
+            mask_aux1 = self.head2(corr_embed)
+            mask_aux1 = rearrange(mask_aux1, '(B T) () H W -> B T H W', B=B)
+        
         corr_embed = self.decoder3(corr_embed, text_guidance[2], guidance[2], corr_guidance[2])
         corr_embed = self.head(corr_embed)
         corr_embed = rearrange(corr_embed, '(B T) () H W -> B T H W', B=B)
+        
+        # No need to detach again since they're already created with no_grad
         return corr_embed, mask_aux, mask_aux0, mask_aux1
+        
+        
 
     def fast_conv_decoder(self, x, text_guidance, guidance, corr_guidance, topK):
         B = x.shape[0]
@@ -714,10 +781,27 @@ class Aggregator(nn.Module):
             text_feats: (B, T, P, C)
             apperance_guidance: tuple of (B, C, H, W)
         """
+
+
+        with torch.cuda.amp.autocast(enabled=False):  # Force FP32 for stability
+            img_feats_norm = F.normalize(img_feats.float(), dim=1)
+            text_feats_norm = F.normalize(text_feats.float(), dim=-1)
+            corr = torch.einsum('bchw, btpc -> bpthw', img_feats_norm, text_feats_norm)
+            del img_feats_norm, text_feats_norm  # Explicit cleanup
+        
+        # Apply checkpointing if enabled
+        if self.use_checkpoint and self.training:
+            corr_embed = checkpoint(self.corr_embed, corr)
+        else:
+            corr_embed = self.corr_embed(corr)
+
+
         # img_feats = self.clip_vis_projection(img_feats)
-        corr = self.correlation(img_feats, text_feats, logit_scale)
+        ################ OG below line only and next to below####################
+        # corr = self.correlation(img_feats, text_feats, logit_scale)
+
         #corr = self.feature_map(img_feats, text_feats)
-        corr_embed = self.corr_embed(corr)
+        # corr_embed = self.corr_embed(corr)
         
         projected_guidance, projected_text_guidance, projected_decoder_guidance = None, [None, None, None], [None, None]
         projected_corr_decoder_guidance = [None, None, None]
@@ -741,4 +825,7 @@ class Aggregator(nn.Module):
         else:
             logit = self.conv_decoder(corr_embed, projected_text_guidance, projected_decoder_guidance, projected_corr_decoder_guidance)
 
+        # import gc
+        # gc.collect()
+        # torch.cuda.empty_cache()
         return logit
