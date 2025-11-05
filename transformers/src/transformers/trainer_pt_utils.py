@@ -153,7 +153,9 @@ def find_batch_size(tensors):
             result = find_batch_size(value)
             if result is not None:
                 return result
-    elif isinstance(tensors, (torch.Tensor, np.ndarray)):
+    elif isinstance(tensors, torch.Tensor):
+        return tensors.shape[0] if len(tensors.shape) >= 1 else None
+    elif isinstance(tensors, np.ndarray):
         return tensors.shape[0] if len(tensors.shape) >= 1 else None
 
 
@@ -632,7 +634,10 @@ class LengthGroupedSampler(Sampler):
         self.batch_size = batch_size
         if lengths is None:
             model_input_name = model_input_name if model_input_name is not None else "input_ids"
-            if not isinstance(dataset[0], (dict, BatchEncoding)) or model_input_name not in dataset[0]:
+            if (
+                not (isinstance(dataset[0], dict) or isinstance(dataset[0], BatchEncoding))
+                or model_input_name not in dataset[0]
+            ):
                 raise ValueError(
                     "Can only automatically infer lengths for datasets whose items are dictionaries with an "
                     f"'{model_input_name}' key."
@@ -692,7 +697,10 @@ class DistributedLengthGroupedSampler(DistributedSampler):
 
         if lengths is None:
             model_input_name = model_input_name if model_input_name is not None else "input_ids"
-            if not isinstance(dataset[0], (dict, BatchEncoding)) or model_input_name not in dataset[0]:
+            if (
+                not (isinstance(dataset[0], dict) or isinstance(dataset[0], BatchEncoding))
+                or model_input_name not in dataset[0]
+            ):
                 raise ValueError(
                     "Can only automatically infer lengths for datasets whose items are dictionaries with an "
                     f"'{model_input_name}' key."

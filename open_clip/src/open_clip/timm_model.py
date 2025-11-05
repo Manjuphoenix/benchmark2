@@ -136,6 +136,12 @@ class TimmModel(nn.Module):
         x = self.visual_prediction_forward_convnext(x)
         x = rearrange(x, "B (H W) C ->B C H W", H=H)
         out['clip_vis_dense'] = x.contiguous()
+
+        # del x, B, C, H, W
+        # import gc
+        # gc.collect()
+        # torch.cuda.empty_cache()
+        # gc.collect()
         return out
 
     def visual_prediction_forward_convnext(self, x):
@@ -143,4 +149,8 @@ class TimmModel(nn.Module):
         x = x.reshape(batch * num_query, channel, 1, 1)  # fake 2D input
         x = self.trunk.head(x)
         x = self.head(x)
+        import gc
+        gc.collect()
+        torch.cuda.empty_cache()
+        gc.collect()
         return x.view(batch, num_query, x.shape[-1])  # B x num_queries x 640

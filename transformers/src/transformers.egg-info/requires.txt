@@ -5,7 +5,7 @@ packaging>=20.0
 pyyaml>=5.1
 regex!=2019.12.17
 requests
-tokenizers<=0.23.0,>=0.22.0
+tokenizers<0.22,>=0.21
 safetensors>=0.4.3
 tqdm>=4.27
 
@@ -18,7 +18,7 @@ onnxconverter-common
 tf2onnx
 tensorflow-text<2.16
 keras-nlp<0.14.0,>=0.3.1
-torch>=2.2
+torch>=2.1
 accelerate>=0.26.0
 jax<=0.4.13,>=0.4.1
 jaxlib<=0.4.13,>=0.4.1
@@ -27,7 +27,7 @@ optax<=0.1.4,>=0.0.8
 scipy<1.13.0
 sentencepiece!=0.1.92,>=0.1.91
 protobuf
-tokenizers<=0.23.0,>=0.22.0
+tokenizers<0.22,>=0.21
 torchaudio
 librosa
 pyctcdecode>=0.4.0
@@ -44,7 +44,6 @@ codecarbon>=2.8.1
 av
 num2words
 mistral-common[opencv]>=1.6.3
-jinja2>=3.1.0
 
 [audio]
 librosa
@@ -54,9 +53,6 @@ kenlm
 
 [benchmark]
 optimum-benchmark>=0.3.0
-
-[chat_template]
-jinja2>=3.1.0
 
 [codecarbon]
 codecarbon>=2.8.1
@@ -105,7 +101,7 @@ onnxconverter-common
 tf2onnx
 tensorflow-text<2.16
 keras-nlp<0.14.0,>=0.3.1
-torch>=2.2
+torch>=2.1
 accelerate>=0.26.0
 jax<=0.4.13,>=0.4.1
 jaxlib<=0.4.13,>=0.4.1
@@ -114,7 +110,7 @@ optax<=0.1.4,>=0.0.8
 scipy<1.13.0
 sentencepiece!=0.1.92,>=0.1.91
 protobuf
-tokenizers<=0.23.0,>=0.22.0
+tokenizers<0.22,>=0.21
 torchaudio
 librosa
 pyctcdecode>=0.4.0
@@ -131,7 +127,6 @@ codecarbon>=2.8.1
 av
 num2words
 mistral-common[opencv]>=1.6.3
-jinja2>=3.1.0
 pytest>=7.2.0
 pytest-asyncio
 pytest-rich
@@ -205,7 +200,7 @@ tf2onnx
 tensorflow-text<2.16
 keras-nlp<0.14.0,>=0.3.1
 protobuf
-tokenizers<=0.23.0,>=0.22.0
+tokenizers<0.22,>=0.21
 Pillow<=15.0,>=10.0.1
 urllib3<2.0.0
 rich
@@ -247,10 +242,10 @@ libcst
 faiss-cpu
 cookiecutter==1.7.3
 mistral-common[opencv]>=1.6.3
-torch>=2.2
+torch>=2.1
 accelerate>=0.26.0
 protobuf
-tokenizers<=0.23.0,>=0.22.0
+tokenizers<0.22,>=0.21
 torchaudio
 librosa
 pyctcdecode>=0.4.0
@@ -378,7 +373,7 @@ pydantic>=2
 uvicorn
 fastapi
 starlette
-torch>=2.2
+torch>=2.1
 accelerate>=0.26.0
 
 [sigopt]
@@ -454,10 +449,10 @@ blobfile
 timm!=1.0.18,<=1.0.19
 
 [tokenizers]
-tokenizers<=0.23.0,>=0.22.0
+tokenizers<0.22,>=0.21
 
 [torch]
-torch>=2.2
+torch>=2.1
 accelerate>=0.26.0
 
 [torch-speech]
@@ -481,8 +476,8 @@ protobuf
 regex!=2019.12.17
 requests
 sentencepiece!=0.1.92,>=0.1.91
-torch>=2.2
-tokenizers<=0.23.0,>=0.22.0
+torch>=2.1
+tokenizers<0.22,>=0.21
 tqdm>=4.27
 
 [video]

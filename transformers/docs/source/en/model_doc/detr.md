@@ -13,7 +13,6 @@ specific language governing permissions and limitations under the License.
 rendered properly in your Markdown viewer.
 
 -->
-*This model was released on 2020-05-26 and added to Hugging Face Transformers on 2021-06-09.*
 
 <div style="float: right;">
 	<div class="flex flex-wrap space-x-1">
@@ -44,7 +43,7 @@ import torch
 pipeline = pipeline(
     "object-detection", 
     model="facebook/detr-resnet-50",
-    dtype=torch.float16,
+    torch_dtype=torch.float16,
     device_map=0
 )
 

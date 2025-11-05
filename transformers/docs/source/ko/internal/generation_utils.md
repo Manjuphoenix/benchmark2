@@ -362,11 +362,21 @@ generation_output[:2]
 [[autodoc]] SlidingWindowLayer
     - update
 
-[[autodoc]] QuantoQuantizedLayer
-    - update
+[[autodoc]] CacheProcessor
+    - pre_update
+    - post_update
 
-[[autodoc]] HQQQuantizedLayer
-    - update
+[[autodoc]] OffloadedCacheProcessor
+    - pre_update
+
+[[autodoc]] QuantizedCacheProcessor
+    - post_update
+
+[[autodoc]] QuantoQuantizedCacheProcessor
+    - post_update
+
+[[autodoc]] HQQQuantizedCacheProcessor
+    - post_update
 
 [[autodoc]] Cache
     - update
@@ -387,7 +397,11 @@ generation_output[:2]
 
 [[autodoc]] QuantoQuantizedCache
 
+[[autodoc]] QuantoQuantizedCacheProcessor
+
 [[autodoc]] HQQQuantizedCache
+
+[[autodoc]] HQQQuantizedCacheProcessor
 
 [[autodoc]] OffloadedCache
 
@@ -404,6 +418,15 @@ generation_output[:2]
 [[autodoc]] EncoderDecoderCache
     - to_legacy_cache
     - from_legacy_cache
+
+[[autodoc]] MambaCache
+    - update_conv_state
+    - update_ssm_state
+    - reset
+
+[[autodoc]] CacheConfig
+
+[[autodoc]] QuantizedCacheConfig
 
 ## 워터마크 유틸리티 (Watermark Utils) [[transformers.WatermarkDetector]]
 

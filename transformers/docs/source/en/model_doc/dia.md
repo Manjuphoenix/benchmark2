@@ -13,7 +13,6 @@ specific language governing permissions and limitations under the License.
 rendered properly in your Markdown viewer.
 
 -->
-*This model was released on 2025-04-21 and added to Hugging Face Transformers on 2025-06-26.*
 
 # Dia
 
@@ -27,7 +26,7 @@ rendered properly in your Markdown viewer.
 
 ## Overview
 
-[Dia](https://github.com/nari-labs/dia) is an open-source text-to-speech (TTS) model (1.6B parameters) developed by [Nari Labs](https://huggingface.co/nari-labs).
+Dia is an open-source text-to-speech (TTS) model (1.6B parameters) developed by [Nari Labs](https://huggingface.co/nari-labs).
 It can generate highly realistic dialogue from transcript including non-verbal communications such as laughter and coughing.
 Furthermore, emotion and tone control is also possible via audio conditioning (voice cloning).
 
@@ -42,9 +41,9 @@ tokens and decodes them back into audio.
 ### Generation with Text
 
 ```python
-from transformers import AutoProcessor, DiaForConditionalGeneration, infer_device
+from transformers import AutoProcessor, DiaForConditionalGeneration
 
-torch_device = infer_device()
+torch_device = "cuda"
 model_checkpoint = "nari-labs/Dia-1.6B-0626"
 
 text = ["[S1] Dia is an open weights text to dialogue model."]
@@ -64,9 +63,9 @@ processor.save_audio(outputs, "example.wav")
 
 ```python
 from datasets import load_dataset, Audio
-from transformers import AutoProcessor, DiaForConditionalGeneration, infer_device
+from transformers import AutoProcessor, DiaForConditionalGeneration
 
-torch_device = infer_device()
+torch_device = "cuda"
 model_checkpoint = "nari-labs/Dia-1.6B-0626"
 
 ds = load_dataset("hf-internal-testing/dailytalk-dummy", split="train")
@@ -91,9 +90,9 @@ processor.save_audio(outputs, "example_with_audio.wav")
 
 ```python
 from datasets import load_dataset, Audio
-from transformers import AutoProcessor, DiaForConditionalGeneration, infer_device
+from transformers import AutoProcessor, DiaForConditionalGeneration
 
-torch_device = infer_device()
+torch_device = "cuda"
 model_checkpoint = "nari-labs/Dia-1.6B-0626"
 
 ds = load_dataset("hf-internal-testing/dailytalk-dummy", split="train")

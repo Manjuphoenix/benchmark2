@@ -174,7 +174,7 @@ class ConvNextModelTest(ModelTesterMixin, PipelineTesterMixin, unittest.TestCase
         else {}
     )
 
-    fx_compatible = False
+    fx_compatible = True
     test_pruning = False
     test_resize_embeddings = False
     test_head_masking = False

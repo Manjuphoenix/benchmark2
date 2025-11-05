@@ -541,6 +541,7 @@ atom_type_num = len(atom_types)  # := 37.
 
 # A compact atom encoding with 14 columns
 # pylint: disable=line-too-long
+# pylint: disable=bad-whitespace
 restype_name_to_atom14_names: dict[str, list[str]] = {
     "ALA": ["N", "CA", "C", "O", "CB", "", "", "", "", "", "", "", "", ""],
     "ARG": ["N", "CA", "C", "O", "CB", "CG", "CD", "NE", "CZ", "NH1", "NH2", "", "", ""],
@@ -565,6 +566,7 @@ restype_name_to_atom14_names: dict[str, list[str]] = {
     "UNK": ["", "", "", "", "", "", "", "", "", "", "", "", "", ""],
 }
 # pylint: enable=line-too-long
+# pylint: enable=bad-whitespace
 
 
 # This is the standard residue order when coding AA type as a number.

@@ -190,10 +190,7 @@ class FSMTConfig(PretrainedConfig):
         self.activation_function = activation_function
 
         self.decoder = DecoderConfig(
-            vocab_size=tgt_vocab_size,
-            bos_token_id=eos_token_id,
-            is_encoder_decoder=is_encoder_decoder,
-            num_hidden_layers=encoder_layers,
+            vocab_size=tgt_vocab_size, bos_token_id=eos_token_id, is_encoder_decoder=is_encoder_decoder
         )
         if "decoder" in common_kwargs:
             del common_kwargs["decoder"]

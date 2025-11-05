@@ -27,6 +27,7 @@ from transformers import (
 from transformers.testing_utils import (
     cleanup,
     require_torch,
+    require_torch_sdpa,
     slow,
     torch_device,
 )
@@ -198,7 +199,7 @@ class GraniteSpeechForConditionalGenerationModelTester:
         input_features,
         attention_mask,
     ):
-        config.dtype = torch.float16
+        config.torch_dtype = torch.float16
         model = GraniteSpeechForConditionalGeneration(config=config)
         model.to(torch_device)
         model.eval()
@@ -268,6 +269,7 @@ class GraniteSpeechForConditionalGenerationModelTest(ModelTesterMixin, Generatio
                         msg=f"Parameter {name} of model {model_class} seems not properly initialized",
                     )
 
+    @require_torch_sdpa
     def test_sdpa_can_dispatch_composite_models(self):
         # overwrite because Granite Speech is audio+text model (not vision+text)
         if not self.has_attentions:
@@ -306,6 +308,7 @@ class GraniteSpeechForConditionalGenerationModelTest(ModelTesterMixin, Generatio
                         raise ValueError("The eager model should not have SDPA attention layers")
 
     @pytest.mark.generate
+    @require_torch_sdpa
     @slow
     @unittest.skip(reason="Granite Speech doesn't support SDPA for all backbones")
     def test_eager_matches_sdpa_generate(self):

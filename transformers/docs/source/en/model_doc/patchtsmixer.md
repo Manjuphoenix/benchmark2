@@ -13,7 +13,6 @@ specific language governing permissions and limitations under the License.
 rendered properly in your Markdown viewer.
 
 -->
-*This model was released on 2023-06-14 and added to Hugging Face Transformers on 2023-12-05.*
 
 # PatchTSMixer
 

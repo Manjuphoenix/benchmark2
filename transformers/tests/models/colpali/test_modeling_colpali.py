@@ -19,7 +19,6 @@ import re
 import unittest
 from typing import ClassVar
 
-import pytest
 import torch
 from datasets import load_dataset
 
@@ -288,7 +287,6 @@ class ColPaliForRetrievalModelTest(ModelTesterMixin, unittest.TestCase):
         pass
 
     @unittest.skip(reason="Pass because ColPali requires `attention_mask is not None`")
-    @pytest.mark.torch_compile_test
     def test_sdpa_can_compile_dynamic(self):
         pass
 
@@ -311,7 +309,7 @@ class ColPaliModelIntegrationTest(unittest.TestCase):
         """
         model = ColPaliForRetrieval.from_pretrained(
             self.model_name,
-            dtype=torch.bfloat16,
+            torch_dtype=torch.bfloat16,
             device_map=torch_device,
         ).eval()
 

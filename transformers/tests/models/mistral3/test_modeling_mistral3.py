@@ -16,7 +16,6 @@
 import unittest
 
 import accelerate
-import pytest
 
 from transformers import (
     AutoProcessor,
@@ -208,7 +207,6 @@ class Mistral3ModelTest(ModelTesterMixin, GenerationTesterMixin, PipelineTesterM
                     )
 
     @unittest.skip(reason="Compile not yet supported because in LLava models")
-    @pytest.mark.torch_compile_test
     def test_sdpa_can_compile_dynamic(self):
         pass
 
@@ -252,7 +250,9 @@ class Mistral3IntegrationTest(unittest.TestCase):
     def setUp(self):
         cleanup(torch_device, gc_collect=True)
         self.model_checkpoint = "mistralai/Mistral-Small-3.1-24B-Instruct-2503"
-        self.model = Mistral3ForConditionalGeneration.from_pretrained(self.model_checkpoint, dtype=torch.bfloat16)
+        self.model = Mistral3ForConditionalGeneration.from_pretrained(
+            self.model_checkpoint, torch_dtype=torch.bfloat16
+        )
         accelerate.cpu_offload(self.model, execution_device=torch_device)
 
     def tearDown(self):
@@ -317,7 +317,6 @@ class Mistral3IntegrationTest(unittest.TestCase):
             {
                 ("xpu", 3): "The image features two cats resting on a pink blanket. The cat on the left is a kitten",
                 ("cuda", 8): 'The image features two cats lying on a pink surface, which appears to be a couch or a bed',
-                ("rocm", (9, 4)): "The image features two cats lying on a pink surface, which appears to be a couch or a bed",
                 ("rocm", (9, 5)): "The image features two tabby cats lying on a pink surface, which appears to be a cushion or"
             }
         )  # fmt: skip
@@ -334,10 +333,7 @@ class Mistral3IntegrationTest(unittest.TestCase):
                 {
                     "role": "user",
                     "content": [
-                        {
-                            "type": "image",
-                            "url": "https://huggingface.co/ydshieh/mistral3-test-data/resolve/main/view.jpg",
-                        },
+                        {"type": "image", "url": "https://huggingface.co/ydshieh/kosmos-2.5/resolve/main/view.jpg"},
                         {"type": "text", "text": "Write a haiku for this image"},
                     ],
                 },
@@ -405,10 +401,7 @@ class Mistral3IntegrationTest(unittest.TestCase):
                 {
                     "role": "user",
                     "content": [
-                        {
-                            "type": "image",
-                            "url": "https://huggingface.co/ydshieh/mistral3-test-data/resolve/main/view.jpg",
-                        },
+                        {"type": "image", "url": "https://huggingface.co/ydshieh/kosmos-2.5/resolve/main/view.jpg"},
                         {"type": "text", "text": "Write a haiku for this image"},
                     ],
                 },
@@ -419,11 +412,11 @@ class Mistral3IntegrationTest(unittest.TestCase):
                     "content": [
                         {
                             "type": "image",
-                            "url": "https://huggingface.co/ydshieh/mistral3-test-data/resolve/main/Statue-of-Liberty-Island-New-York-Bay.jpg",
+                            "url": "https://huggingface.co/ydshieh/kosmos-2.5/resolve/main/Statue-of-Liberty-Island-New-York-Bay.jpg",
                         },
                         {
                             "type": "image",
-                            "url": "https://huggingface.co/ydshieh/mistral3-test-data/resolve/main/golden-gate-bridge-san-francisco-purple-flowers-california-echium-candicans-36805947.jpg",
+                            "url": "https://huggingface.co/ydshieh/kosmos-2.5/resolve/main/golden-gate-bridge-san-francisco-purple-flowers-california-echium-candicans-36805947.jpg",
                         },
                         {
                             "type": "text",

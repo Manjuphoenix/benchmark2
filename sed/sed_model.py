@@ -14,6 +14,21 @@ from detectron2.structures import ImageList
 from detectron2.utils.memory import _ignore_torch_cuda_oom
 
 from einops import rearrange
+from torch.autograd import Variable
+
+
+def count_computation_graph(var):
+    if isinstance(var, Variable):
+        fn = var.grad_fn
+        if fn is None:
+            return 0
+        count = 1
+        for i in fn.next_functions:
+            if i[0] is not None:
+                count += count_computation_graph(i[0])
+        return count
+    return 0
+
 
 @META_ARCH_REGISTRY.register()
 class SED(nn.Module):
@@ -103,6 +118,11 @@ class SED(nn.Module):
         self.layers = []
         for l in self.layer_indexes:
             self.sem_seg_head.predictor.clip_model.visual.trunk.stages[l].register_forward_hook(lambda m, _, o: self.layers.append(o))
+        # self.layer_indexes = [3, 7] if clip_pretrained == "ViT-B/16" else [7, 15] 
+        # self.layers = []
+        # for l in self.layer_indexes:
+        #     self.sem_seg_head.predictor.clip_model.visual.transformer.resblocks[l].register_forward_hook(lambda m, _, o: self.layers.append(o))
+
 
 
     def reset_forward_hooks(self):
@@ -112,7 +132,11 @@ class SED(nn.Module):
         self.layers = []
         for l in self.layer_indexes:
             self.sem_seg_head.predictor.clip_model.visual.trunk.stages[l].register_forward_hook(lambda m, _, o: self.layers.append(o))
-            
+        # self.layers = []
+        # for l in self.layer_indexes:
+        #     self.sem_seg_head.predictor.clip_model.visual.transformer.resblocks[l].register_forward_hook(lambda m, _, o: self.layers.append(o))
+        
+
 
     @classmethod
     def from_config(cls, cfg):
@@ -191,15 +215,17 @@ class SED(nn.Module):
         clip_vis_dense = clip_features["clip_vis_dense"]
         fusion_features = {k: v.clone().detach() for k,v in clip_features.items() if k in self.in_features}
         outputs = self.sem_seg_head(clip_vis_dense, fusion_features)
+        # outputs = self.sem_seg_head(features, fusion_features)
         if self.training:
             print_flag = False
             for name, param in self.named_parameters():
-                # print(name, "------------------", param.requires_grad)
+                # print(name)
                 if param.grad == None and param.requires_grad:
                     print(name)
                     print_flag = True
             if print_flag:
                 print("--------------------------------------------------------------------\n")
+                # print(HYE)
             targets = torch.stack([x["sem_seg"].to(self.device) for x in batched_inputs], dim=0)
             num_classes = outputs[0].shape[1]
             # print("-___---_____----__---___-", num_classes, "-__---____--____--")
@@ -216,14 +242,14 @@ class SED(nn.Module):
                 _onehot = F.one_hot(targets[mask], num_classes=num_classes).float()
                 _targets[mask] = _onehot
                 loss = F.binary_cross_entropy_with_logits(output_, _targets)
-
                 losses.update({f"loss_sem_seg_{i}" : loss})
                 
-            torch.cuda.memory._dump_snapshot("/home/1SED/profiler.pickle")
+            torch.cuda.memory._dump_snapshot("/home/SED/profilers/profiler.pickle")
             torch.cuda.memory._record_memory_history(enabled=None)
-            import gc
-            gc.collect()
-            torch.cuda.empty_cache()
+            # import gc
+            # gc.collect()
+            # del images, clip_images, clip_features, images_resized, clip_vis_dense, fusion_features, outputs
+            torch.cuda.empty_cache() 
             return losses
         else:
             if self.fast_inference:

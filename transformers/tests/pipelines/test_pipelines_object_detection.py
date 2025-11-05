@@ -74,7 +74,7 @@ class ObjectDetectionPipelineTests(unittest.TestCase):
         image_processor=None,
         feature_extractor=None,
         processor=None,
-        dtype="float32",
+        torch_dtype="float32",
     ):
         object_detector = ObjectDetectionPipeline(
             model=model,
@@ -82,7 +82,7 @@ class ObjectDetectionPipelineTests(unittest.TestCase):
             feature_extractor=feature_extractor,
             image_processor=image_processor,
             processor=processor,
-            dtype=dtype,
+            torch_dtype=torch_dtype,
         )
         return object_detector, ["./tests/fixtures/tests_samples/COCO/000000039769.png"]
 

@@ -13,7 +13,6 @@ specific language governing permissions and limitations under the License.
 rendered properly in your Markdown viewer.
 
 -->
-*This model was released on 2024-09-03 and added to Hugging Face Transformers on 2024-09-03.*
 
 <div style="float: right;">
 <div class="flex flex-wrap space-x-1">
@@ -30,7 +29,7 @@ rendered properly in your Markdown viewer.
 You can find all the original OLMoE checkpoints under the [OLMoE](https://huggingface.co/collections/allenai/olmoe-november-2024-66cf678c047657a30c8cd3da) collection.
 
 > [!TIP]
-> This model was contributed by [Muennighoff](https://huggingface.co/Muennighoff).
+> This model was contributed by [Muennighoff](https://hf.co/Muennighoff).
 >
 > Click on the OLMoE models in the right sidebar for more examples of how to apply OLMoE to different language tasks.
 
@@ -46,7 +45,7 @@ from transformers import pipeline
 pipe = pipeline(
     task="text-generation",
     model="allenai/OLMoE-1B-7B-0125",
-    dtype=torch.float16,
+    torch_dtype=torch.float16,
     device=0,
 )
 
@@ -59,11 +58,11 @@ print(result)
 
 ```py
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer, infer_device
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
-device = infer_device()
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
-model = AutoModelForCausalLM.from_pretrained("allenai/OLMoE-1B-7B-0924", attn_implementation="sdpa", dtype="auto", device_map="auto").to(device)
+model = AutoModelForCausalLM.from_pretrained("allenai/OLMoE-1B-7B-0924", attn_implementation="sdpa", torch_dtype="auto", device_map="auto").to(device)
 tokenizer = AutoTokenizer.from_pretrained("allenai/OLMoE-1B-7B-0924")
 
 inputs = tokenizer("Bitcoin is", return_tensors="pt")
@@ -79,9 +78,9 @@ The example below uses [bitsandbytes](../quantization/bitsandbytes) to only quan
 
 ```py
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, infer_device
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
-device = infer_device()
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
 quantization_config = BitsAndBytesConfig(
    load_in_4bit=True,
@@ -90,7 +89,7 @@ quantization_config = BitsAndBytesConfig(
    bnb_4bit_quant_type="nf4"
 )
 
-model = AutoModelForCausalLM.from_pretrained("allenai/OLMoE-1B-7B-0924", attn_implementation="sdpa", dtype="auto", device_map="auto", quantization_config=quantization_config).to(device)
+model = AutoModelForCausalLM.from_pretrained("allenai/OLMoE-1B-7B-0924", attn_implementation="sdpa", torch_dtype="auto", device_map="auto", quantization_config=quantization_config).to(device)
 tokenizer = AutoTokenizer.from_pretrained("allenai/OLMoE-1B-7B-0924")
 
 inputs = tokenizer("Bitcoin is", return_tensors="pt")

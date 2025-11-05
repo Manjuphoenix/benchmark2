@@ -243,14 +243,6 @@ class MiniMaxModelTest(CausalLMModelTest, unittest.TestCase):
         pass
 
     @unittest.skip("MiniMax is special")
-    def test_flash_attention_2_padding_matches_padding_free_with_position_ids(self):
-        pass
-
-    @unittest.skip("MiniMax is special")
-    def test_flash_attention_2_padding_matches_padding_free_with_position_ids_and_fa_kwargs(self):
-        pass
-
-    @unittest.skip("MiniMax is special")
     def test_eager_padding_matches_padding_free_with_position_ids(self):
         pass
 
@@ -269,7 +261,7 @@ class MiniMaxIntegrationTest(unittest.TestCase):
 
         model = MiniMaxForCausalLM.from_pretrained(
             model_id,
-            dtype=torch.bfloat16,
+            torch_dtype=torch.bfloat16,
         ).to(torch_device)
 
         with torch.no_grad():
@@ -294,7 +286,7 @@ class MiniMaxIntegrationTest(unittest.TestCase):
 
         model = MiniMaxForCausalLM.from_pretrained(
             model_id,
-            dtype=torch.bfloat16,
+            torch_dtype=torch.bfloat16,
         ).to(torch_device)
         expected_slice = (
             torch.tensor([[0, 1, 0, 933, 307, 3102, 2457, 1208], [0, 1, 0, 933, 307, 3102, 2457, 1208]])

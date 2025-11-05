@@ -56,8 +56,8 @@ DATASETS:
   TEST: ("acdc-rain_sem_seg_val",)
   # TEST: ("IE_Segmentation_sem_seg_val",)
 SOLVER:
-  IMS_PER_BATCH: 4
-  BASE_LR: 0.0002
+  IMS_PER_BATCH: 2
+  BASE_LR: 0.0001
   MAX_ITER: 80000
   WARMUP_FACTOR: 1.0
   WARMUP_ITERS: 0

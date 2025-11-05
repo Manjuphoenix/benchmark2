@@ -673,7 +673,6 @@ class CLIPTextModel(CLIPPreTrainedModel):
     config: CLIPTextConfig
 
     _no_split_modules = ["CLIPTextEmbeddings", "CLIPEncoderLayer"]
-    _supports_flash_attn = False  # mask creation only accounts for sdpa/eager
 
     def __init__(self, config: CLIPTextConfig):
         super().__init__(config)
@@ -831,7 +830,6 @@ class CLIPVisionModel(CLIPPreTrainedModel):
 class CLIPModel(CLIPPreTrainedModel):
     config: CLIPConfig
     _no_split_modules = ["CLIPTextEmbeddings", "CLIPEncoderLayer", "CLIPVisionEmbeddings"]
-    _supports_flash_attn = False  # mask creation only accounts for sdpa/eager
 
     def __init__(self, config: CLIPConfig):
         super().__init__(config)

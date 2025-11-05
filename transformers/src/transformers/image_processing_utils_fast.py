@@ -85,7 +85,7 @@ def validate_fast_preprocess_arguments(
     crop_size: Optional[SizeDict] = None,
     do_resize: Optional[bool] = None,
     size: Optional[SizeDict] = None,
-    interpolation: Optional["F.InterpolationMode"] = None,
+    resample: Optional["PILImageResampling"] = None,
     return_tensors: Optional[Union[str, TensorType]] = None,
     data_format: Optional[ChannelDimension] = ChannelDimension.FIRST,
 ):
@@ -105,7 +105,7 @@ def validate_fast_preprocess_arguments(
         crop_size=crop_size,
         do_resize=do_resize,
         size=size,
-        interpolation=interpolation,
+        resample=resample,
     )
     # Extra checks for ImageProcessorFast
     if return_tensors is not None and return_tensors != "pt":
@@ -211,7 +211,10 @@ class BaseImageProcessorFast(BaseImageProcessor):
     valid_kwargs = DefaultFastImageProcessorKwargs
     unused_kwargs = None
 
-    def __init__(self, **kwargs: Unpack[DefaultFastImageProcessorKwargs]):
+    def __init__(
+        self,
+        **kwargs: Unpack[DefaultFastImageProcessorKwargs],
+    ) -> None:
         super().__init__(**kwargs)
         kwargs = self.filter_out_unused_kwargs(kwargs)
         size = kwargs.pop("size", self.size)
@@ -231,13 +234,6 @@ class BaseImageProcessorFast(BaseImageProcessor):
 
         # get valid kwargs names
         self._valid_kwargs_names = list(self.valid_kwargs.__annotations__.keys())
-
-    @property
-    def is_fast(self) -> bool:
-        """
-        `bool`: Whether or not this image processor is a fast processor (backed by PyTorch and TorchVision).
-        """
-        return True
 
     def resize(
         self,
@@ -304,9 +300,9 @@ class BaseImageProcessorFast(BaseImageProcessor):
         A wrapper around `F.resize` so that it is compatible with torch.compile when the image is a uint8 tensor.
         """
         if image.dtype == torch.uint8:
-            image = image.float() / 255
+            image = image.float() / 256
             image = F.resize(image, new_size, interpolation=interpolation, antialias=antialias)
-            image = image * 255
+            image = image * 256
             image = torch.where(image > 255, 255, image)
             image = torch.where(image < 0, 0, image)
             image = image.round().to(torch.uint8)
@@ -469,8 +465,6 @@ class BaseImageProcessorFast(BaseImageProcessor):
         Returns:
             `ImageInput`: The images with a valid nesting.
         """
-        # Checks for `str` in case of URL/local path and optionally loads images
-        images = self.fetch_images(images)
         return make_flat_list_of_images(images, expected_ndims=expected_ndims)
 
     def _process_image(
@@ -584,18 +578,10 @@ class BaseImageProcessorFast(BaseImageProcessor):
 
         kwargs["size"] = size
         kwargs["crop_size"] = crop_size
+        kwargs["default_to_square"] = default_to_square
         kwargs["image_mean"] = image_mean
         kwargs["image_std"] = image_std
         kwargs["data_format"] = data_format
-
-        # torch resize uses interpolation instead of resample
-        # Check if resample is an int before checking if it's an instance of PILImageResampling
-        # because if pillow < 9.1.0, resample is an int and PILImageResampling is a module.
-        # Checking PILImageResampling will fail with error `TypeError: isinstance() arg 2 must be a type or tuple of types`.
-        resample = kwargs.pop("resample")
-        kwargs["interpolation"] = (
-            pil_torch_interpolation_mapping[resample] if isinstance(resample, (PILImageResampling, int)) else resample
-        )
 
         return kwargs
 
@@ -610,7 +596,7 @@ class BaseImageProcessorFast(BaseImageProcessor):
         size: Optional[SizeDict] = None,
         do_center_crop: Optional[bool] = None,
         crop_size: Optional[SizeDict] = None,
-        interpolation: Optional["F.InterpolationMode"] = None,
+        resample: Optional[Union["PILImageResampling", "F.InterpolationMode"]] = None,
         return_tensors: Optional[Union[str, TensorType]] = None,
         data_format: Optional[ChannelDimension] = None,
         **kwargs,
@@ -628,7 +614,7 @@ class BaseImageProcessorFast(BaseImageProcessor):
             size=size,
             do_center_crop=do_center_crop,
             crop_size=crop_size,
-            interpolation=interpolation,
+            resample=resample,
             return_tensors=return_tensors,
             data_format=data_format,
         )
@@ -656,7 +642,18 @@ class BaseImageProcessorFast(BaseImageProcessor):
         # Validate kwargs
         self._validate_preprocess_kwargs(**kwargs)
 
+        # torch resize uses interpolation instead of resample
+        resample = kwargs.pop("resample")
+
+        # Check if resample is an int before checking if it's an instance of PILImageResampling
+        # because if pillow < 9.1.0, resample is an int and PILImageResampling is a module.
+        # Checking PILImageResampling will fail with error `TypeError: isinstance() arg 2 must be a type or tuple of types`.
+        kwargs["interpolation"] = (
+            pil_torch_interpolation_mapping[resample] if isinstance(resample, (int, PILImageResampling)) else resample
+        )
+
         # Pop kwargs that are not needed in _preprocess
+        kwargs.pop("default_to_square")
         kwargs.pop("data_format")
 
         return self._preprocess_image_like_inputs(
@@ -674,7 +671,7 @@ class BaseImageProcessorFast(BaseImageProcessor):
     ) -> BatchFeature:
         """
         Preprocess image-like inputs.
-        To be overridden by subclasses when image-like inputs other than images should be processed.
+        To be overriden by subclasses when image-like inputs other than images should be processed.
         It can be used for segmentation maps, depth maps, etc.
         """
         # Prepare input images

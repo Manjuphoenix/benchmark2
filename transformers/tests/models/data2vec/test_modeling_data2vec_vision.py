@@ -15,8 +15,6 @@
 
 import unittest
 
-import pytest
-
 from transformers import Data2VecVisionConfig
 from transformers.testing_utils import (
     require_torch,
@@ -216,7 +214,6 @@ class Data2VecVisionModelTest(ModelTesterMixin, PipelineTesterMixin, unittest.Te
     @unittest.skip(
         reason="Will fix only if requested by the community: it fails with `torch._dynamo.exc.InternalTorchDynamoError: IndexError: list index out of range`. Without compile, the test pass."
     )
-    @pytest.mark.torch_compile_test
     def test_sdpa_can_compile_dynamic(self):
         pass
 

@@ -105,7 +105,7 @@ class ImageSegmentationPipelineTests(unittest.TestCase):
         image_processor=None,
         feature_extractor=None,
         processor=None,
-        dtype="float32",
+        torch_dtype="float32",
     ):
         image_segmenter = ImageSegmentationPipeline(
             model=model,
@@ -113,7 +113,7 @@ class ImageSegmentationPipelineTests(unittest.TestCase):
             feature_extractor=feature_extractor,
             image_processor=image_processor,
             processor=processor,
-            dtype=dtype,
+            torch_dtype=torch_dtype,
         )
         return image_segmenter, [
             "./tests/fixtures/tests_samples/COCO/000000039769.png",

@@ -27,7 +27,7 @@ EXAONE 4.0의 모델 구조는 이전 EXAONE 모델들과 다른 아키텍처 �
 1. **Hybrid Attention**: 32B 모델은 *Local attention (sliding window attention)*과 *Global attention (full attention)*을 3:1 비율로 연결한 hybrid attention 구조를 채택했습니다. 또한 전체 문맥을 더 잘 이해할 수 있도록 global attention에서 RoPE를 사용하지 않았습니다.
 2. **QK-Reorder-Norm**: 더 나은 downstream tasks 성능을 위해 연산량의 증가를 감수하며 전통적으로 사용되고 있던 Pre-LN 방식을 변경했습니다. LayerNorm의 위치를 attention과 MLP의 출력에 적용되도록 재배치했고, Q와 K projection 직후에도 RMS normalization을 추가했습니다. 
 
-더 자세한 정보는 [기술 보고서](https://huggingface.co/papers/2507.11407), [HuggingFace 논문](https://huggingface.co/papers/2507.11407), [블로그](https://www.lgresearch.ai/blog/view?seq=576), [공식 GitHub](https://github.com/LG-AI-EXAONE/EXAONE-4.0) 페이지를 참고해주시길 바랍니다.
+더 자세한 정보는 [기술 보고서](https://arxiv.org/abs/2507.11407), [HuggingFace 논문](https://huggingface.co/papers/2507.11407), [블로그](https://www.lgresearch.ai/blog/view?seq=576), [공식 GitHub](https://github.com/LG-AI-EXAONE/EXAONE-4.0) 페이지를 참고해주시길 바랍니다.
 
 공개된 모든 모델 체크포인트는 [HuggingFace 콜렉션](https://huggingface.co/collections/LGAI-EXAONE/exaone-40-686b2e0069800c835ed48375)에서 확인할 수 있습니다.
 
@@ -67,7 +67,7 @@ model_name = "LGAI-EXAONE/EXAONE-4.0-32B"
 
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
-    dtype="bfloat16",
+    torch_dtype="bfloat16",
     device_map="auto"
 )
 tokenizer = AutoTokenizer.from_pretrained(model_name)

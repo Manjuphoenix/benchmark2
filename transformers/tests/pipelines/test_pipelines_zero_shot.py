@@ -59,7 +59,7 @@ class ZeroShotClassificationPipelineTests(unittest.TestCase):
         image_processor=None,
         feature_extractor=None,
         processor=None,
-        dtype="float32",
+        torch_dtype="float32",
     ):
         classifier = ZeroShotClassificationPipeline(
             model=model,
@@ -67,7 +67,7 @@ class ZeroShotClassificationPipelineTests(unittest.TestCase):
             feature_extractor=feature_extractor,
             image_processor=image_processor,
             processor=processor,
-            dtype=dtype,
+            torch_dtype=torch_dtype,
             candidate_labels=["polics", "health"],
         )
         return classifier, ["Who are you voting for in 2020?", "My stomach hurts."]
@@ -206,7 +206,7 @@ class ZeroShotClassificationPipelineTests(unittest.TestCase):
             "zero-shot-classification",
             model="sshleifer/tiny-distilbert-base-cased-distilled-squad",
             framework="pt",
-            dtype=torch.float16,
+            torch_dtype=torch.float16,
         )
         outputs = zero_shot_classifier(
             "Who are you voting for in 2020?", candidate_labels=["politics", "public health", "science"]
@@ -227,7 +227,7 @@ class ZeroShotClassificationPipelineTests(unittest.TestCase):
             "zero-shot-classification",
             model="sshleifer/tiny-distilbert-base-cased-distilled-squad",
             framework="pt",
-            dtype=torch.bfloat16,
+            torch_dtype=torch.bfloat16,
         )
         outputs = zero_shot_classifier(
             "Who are you voting for in 2020?", candidate_labels=["politics", "public health", "science"]

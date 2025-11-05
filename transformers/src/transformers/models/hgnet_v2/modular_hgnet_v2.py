@@ -455,8 +455,6 @@ class HGNetV2Encoder(nn.Module):
 
 
 class HGNetV2Backbone(HGNetV2PreTrainedModel, BackboneMixin):
-    has_attentions = False
-
     def __init__(self, config: HGNetV2Config):
         super().__init__(config)
         super()._init_backbone(config)
@@ -476,11 +474,11 @@ class HGNetV2Backbone(HGNetV2PreTrainedModel, BackboneMixin):
         Examples:
 
         ```python
-        >>> from transformers import HGNetV2Config, HGNetV2Backbone
+        >>> from transformers import RTDetrResNetConfig, RTDetrResNetBackbone
         >>> import torch
 
-        >>> config = HGNetV2Config()
-        >>> model = HGNetV2Backbone(config)
+        >>> config = RTDetrResNetConfig()
+        >>> model = RTDetrResNetBackbone(config)
 
         >>> pixel_values = torch.randn(1, 3, 224, 224)
 

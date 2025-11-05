@@ -13,7 +13,6 @@ specific language governing permissions and limitations under the License.
 rendered properly in your Markdown viewer.
 
 -->
-*This model was released on 2024-05-03 and added to Hugging Face Transformers on 2024-04-15.*
 
 # Idefics2
 
@@ -57,10 +56,10 @@ Example of how to use the processor on chat messages:
 ```python
 import requests
 from PIL import Image
-from transformers import Idefics2Processor, Idefics2ForConditionalGeneration, infer_device
+from transformers import Idefics2Processor, Idefics2ForConditionalGeneration
 import torch
 
-device = infer_device()
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
 url_1 = "http://images.cocodataset.org/val2017/000000039769.jpg"
 url_2 = "http://images.cocodataset.org/val2017/000000219578.jpg"
@@ -87,7 +86,7 @@ text = processor.apply_chat_template(messages, add_generation_prompt=True)
 print(text)
 # 'User: What’s the difference between these two images?<image><image><end_of_utterance>\nAssistant:'
 
-inputs = processor(images=images, text=text, return_tensors="pt").to(model.device)
+inputs = processor(images=images, text=text, return_tensors="pt").to(device)
 
 generated_text = model.generate(**inputs, max_new_tokens=500)
 generated_text = processor.batch_decode(generated_text, skip_special_tokens=True)[0]
@@ -99,7 +98,7 @@ print("Generated text:", generated_text)
 ```python
 import requests
 from PIL import Image
-from transformers import Idefics2Processor, Idefics2ForConditionalGeneration, infer_device
+from transformers import Idefics2Processor, Idefics2ForConditionalGeneration
 import torch
 
 url_1 = "http://images.cocodataset.org/val2017/000000039769.jpg"
@@ -124,14 +123,14 @@ messages = [{
     ],
 }]
 
-device = infer_device()
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
 processor = Idefics2Processor.from_pretrained("HuggingFaceM4/idefics2-8b")
 model = Idefics2ForConditionalGeneration.from_pretrained("HuggingFaceM4/idefics2-8b")
 model.to(device)
 
 text = processor.apply_chat_template(messages, add_generation_prompt=False)
-inputs = processor(images=images, text=text, return_tensors="pt").to(model.device)
+inputs = processor(images=images, text=text, return_tensors="pt").to(device)
 
 labels = inputs.input_ids.clone()
 labels[labels == processor.tokenizer.pad_token_id] = -100
@@ -163,7 +162,7 @@ To load and run a model using Flash Attention-2, simply change the code snippet 
 ```diff
 model = Idefics2ForConditionalGeneration.from_pretrained(
     "HuggingFaceM4/idefics2-8b",
-+    dtype=torch.float16,
++    torch_dtype=torch.float16,
 +    attn_implementation="flash_attention_2",
 ).to(device)
 ```
@@ -185,7 +184,7 @@ Quantizing a model is as simple as passing a `quantization_config` to the model.
 + )
 model = Idefics2ForConditionalGeneration.from_pretrained(
     "HuggingFaceM4/idefics2-8b",
-+    dtype=torch.float16,
++    torch_dtype=torch.float16,
 +    quantization_config=quantization_config,
 ).to(device)
 ```

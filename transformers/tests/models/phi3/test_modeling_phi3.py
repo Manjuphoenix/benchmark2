@@ -16,8 +16,6 @@
 
 import unittest
 
-import pytest
-
 from transformers import Phi3Config, StaticCache, is_torch_available
 from transformers.models.auto.configuration_auto import AutoConfig
 from transformers.testing_utils import (
@@ -48,7 +46,13 @@ if is_torch_available():
         def __init__(self, model: Phi3ForCausalLM, batch_size: int, max_seq_len: int):
             super().__init__()
             self.model = model
-            self.cache = StaticCache(config=model.config, max_cache_len=max_seq_len)
+            self.cache = StaticCache(
+                config=model.config,
+                max_batch_size=batch_size,
+                max_cache_len=max_seq_len,
+                device=self.model.device,
+                dtype=self.model.dtype,
+            )
 
         def forward(
             self,
@@ -261,7 +265,7 @@ class Phi3IntegrationTest(unittest.TestCase):
         See #33586 for more
         """
         model = Phi3ForCausalLM.from_pretrained(
-            "microsoft/Phi-3-mini-4k-instruct", device_map=torch_device, dtype=torch.bfloat16
+            "microsoft/Phi-3-mini-4k-instruct", device_map=torch_device, torch_dtype=torch.bfloat16
         )
         tokenizer = AutoTokenizer.from_pretrained("microsoft/Phi-3-mini-4k-instruct")
 
@@ -344,7 +348,6 @@ class Phi3IntegrationTest(unittest.TestCase):
 
         self.assertListEqual(output_text, EXPECTED_OUTPUT)
 
-    @pytest.mark.torch_export_test
     @slow
     def test_export_static_cache(self):
         from transformers.pytorch_utils import is_torch_greater_or_equal_than_2_4
@@ -390,7 +393,7 @@ class Phi3IntegrationTest(unittest.TestCase):
             model_id,
             config=config,
             device_map=device,
-            dtype=dtype,
+            torch_dtype=dtype,
             attn_implementation=attn_implementation,
             generation_config=GenerationConfig(
                 use_cache=True,
@@ -414,10 +417,7 @@ class Phi3IntegrationTest(unittest.TestCase):
         from transformers.integrations.executorch import TorchExportableModuleForDecoderOnlyLM
 
         exportable_module = TorchExportableModuleForDecoderOnlyLM(model)
-        exported_program = exportable_module.export(
-            input_ids=torch.tensor([[1]], dtype=torch.long, device=model.device),
-            cache_position=torch.tensor([0], dtype=torch.long, device=model.device),
-        )
+        exported_program = exportable_module.export()
         ep_generated_ids = TorchExportableModuleWithStaticCache.generate(
             exported_program=exported_program, prompt_token_ids=prompt_token_ids, max_new_tokens=max_new_tokens
         )

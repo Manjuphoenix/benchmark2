@@ -161,7 +161,7 @@ class PromptDepthAnythingFeatureFusionLayer(nn.Module):
 
 
 class PromptDepthAnythingFeatureFusionStage(nn.Module):
-    def __init__(self, config: PromptDepthAnythingConfig):
+    def __init__(self, config):
         super().__init__()
         self.layers = nn.ModuleList()
         for _ in range(len(config.neck_hidden_sizes)):

@@ -209,6 +209,10 @@ class CLIP(nn.Module):
     def forward(self, image, text):
         image_features = self.encode_image(image, normalize=True)
         text_features = self.encode_text(text, normalize=True)
+        # import gc
+        # gc.collect()
+        # torch.cuda.empty_cache()
+        # gc.collect()
         return image_features, text_features, self.logit_scale.exp()
 
 
@@ -240,6 +244,9 @@ class CustomTextCLIP(nn.Module):
 
     def encode_image(self, image, normalize: bool = False):
         features = self.visual(image)
+
+        # torch.cuda.empty_cache()
+        # del image
         return F.normalize(features, dim=-1) if normalize else features
 
     def encode_text(self, text, normalize: bool = False):
@@ -249,6 +256,10 @@ class CustomTextCLIP(nn.Module):
     def forward(self, image, text):
         image_features = self.encode_image(image, normalize=True)
         text_features = self.encode_text(text, normalize=True)
+        # import gc
+        # gc.collect()
+        # torch.cuda.empty_cache()
+        # gc.collect()
         return image_features, text_features, self.logit_scale.exp()
 
 

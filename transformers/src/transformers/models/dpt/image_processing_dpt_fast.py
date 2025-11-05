@@ -24,9 +24,10 @@ import math
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Optional, Union
 
-from ...image_processing_base import BatchFeature
+from transformers.image_processing_base import BatchFeature
+from transformers.image_transforms import group_images_by_shape, reorder_images
+
 from ...image_processing_utils_fast import BaseImageProcessorFast, DefaultFastImageProcessorKwargs
-from ...image_transforms import group_images_by_shape, reorder_images
 from ...image_utils import (
     IMAGENET_STANDARD_MEAN,
     IMAGENET_STANDARD_STD,

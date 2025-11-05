@@ -54,14 +54,14 @@ class ZeroShotObjectDetectionPipelineTests(unittest.TestCase):
         image_processor=None,
         feature_extractor=None,
         processor=None,
-        dtype="float32",
+        torch_dtype="float32",
     ):
         object_detector = ZeroShotObjectDetectionPipeline(
             model=model,
             processor=processor,
             tokenizer=tokenizer,
             image_processor=image_processor,
-            dtype=dtype,
+            torch_dtype=torch_dtype,
         )
 
         examples = [

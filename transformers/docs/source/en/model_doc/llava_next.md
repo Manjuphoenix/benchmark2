@@ -13,7 +13,6 @@ specific language governing permissions and limitations under the License.
 rendered properly in your Markdown viewer.
 
 -->
-*This model was released on 2024-01-30 and added to Hugging Face Transformers on 2024-03-20.*
 
 <div style="float: right;">
   <div class="flex flex-wrap space-x-1">
@@ -25,7 +24,7 @@ rendered properly in your Markdown viewer.
 
 # LLaVA-NeXT
 
-[LLaVA‑NeXT](https://llava-vl.github.io/blog/2024-01-30-llava-next/) improves on [Llava](./llava) by increasing the input image resolution by 4x more pixels and supporting 3 aspect ratios (up to 672x672, 336x1344, 1344x336) to better grasp visual details. It is also trained on an improved visual instruction tuning dataset covering more scenarios and applications to improve OCR and common sense reasoning.
+[LLaVA‑NeXT](https://llava-vl.github.io/blog/2024-05-10-llava-next-stronger-llms/) improves on [Llava](./llava) by increasing the input image resolution by 4x more pixels and supporting 3 aspect ratios (up to 672x672, 336x1344, 1344x336) to better grasp visual details. It is also trained on an improved visual instruction tuning dataset covering more scenarios and applications to improve OCR and common sense reasoning.
 
 You can find all the original LLaVA‑NeXT checkpoints under the [LLaVA-NeXT](https://huggingface.co/collections/llava-hf/llava-next-65f75c4afac77fd37dbbe6cf) collection.
 
@@ -48,7 +47,7 @@ pipeline = pipeline(
     task="image-text-to-text",  
     model="llava-hf/llava-v1.6-mistral-7b-hf",  
     device=0,  
-    dtype=torch.bfloat16  
+    torch_dtype=torch.bfloat16  
 )  
 messages = [  
     {  
@@ -70,32 +69,30 @@ pipeline(text=messages, max_new_tokens=20, return_full_text=False)
 <hfoption id="AutoModel">
 
 ```python
-import torch
-import requests
-from PIL import Image
-from transformers import AutoProcessor, LlavaNextForConditionalGeneration, infer_device
+import torch  
+import requests  
+from PIL import Image  
+from transformers import AutoProcessor, LlavaNextForConditionalGeneration  
 
-device = infer_device()
+processor = AutoProcessor.from_pretrained("llava-hf/llava-v1.6-mistral-7b-hf")  
+model = LlavaNextForConditionalGeneration.from_pretrained("llava-hf/llava-v1.6-mistral-7b-hf", torch_dtype=torch.float16).to("cuda")  
 
-processor = AutoProcessor.from_pretrained("llava-hf/llava-v1.6-mistral-7b-hf")
-model = LlavaNextForConditionalGeneration.from_pretrained("llava-hf/llava-v1.6-mistral-7b-hf", dtype=torch.float16).to(device)
+url = "https://github.com/haotian-liu/LLaVA/blob/1a91fc274d7c35a9b50b3cb29c4247ae5837ce39/images/llava_v1_5_radar.jpg?raw=true"  
+image = Image.open(requests.get(url, stream=True).raw)  
 
-url = "https://github.com/haotian-liu/LLaVA/blob/1a91fc274d7c35a9b50b3cb29c4247ae5837ce39/images/llava_v1_5_radar.jpg?raw=true"
-image = Image.open(requests.get(url, stream=True).raw)
-
-conversation = [
-    {
-        "role": "user",
-        "content": [
-            {"type": "image"},
-            {"type": "text", "text": "What is shown in this image?"},
-        ],
-    },
-]
-prompt = processor.apply_chat_template(conversation, add_generation_prompt=True)
-inputs = processor(image, prompt, return_tensors="pt").to(model.device)
-output = model.generate(**inputs, max_new_tokens=100)
-print(processor.decode(output[0], skip_special_tokens=True))
+conversation = [  
+    {  
+        "role": "user",  
+        "content": [  
+            {"type": "image"},  
+            {"type": "text", "text": "What is shown in this image?"},  
+        ],  
+    },  
+]  
+prompt = processor.apply_chat_template(conversation, add_generation_prompt=True)  
+inputs = processor(image, prompt, return_tensors="pt").to("cuda")  
+output = model.generate(**inputs, max_new_tokens=100)  
+print(processor.decode(output[0], skip_special_tokens=True))  
 ```
 
 </hfoption>
@@ -107,38 +104,38 @@ Quantization reduces the memory burden of large models by representing the weigh
 The example below uses [bitsandbytes](../quantization/bitsandbytes) to only quantize the weights to int4.
 
 ```python
-import torch
-import requests
-from PIL import Image
-from transformers import AutoModelForImageTextToText, AutoProcessor, BitsAndBytesConfig
+import torch  
+import requests  
+from PIL import Image  
+from transformers import AutoModelForImageTextToText, AutoProcessor, BitsAndBytesConfig  
 
 quant_config = BitsAndBytesConfig(  
     load_in_4bit=True,  
     bnb_4bit_compute_dtype=torch.float16,  
     bnb_4bit_quant_type="nf4"  
-)
+)  
 
-processor = AutoProcessor.from_pretrained("llava-hf/llava-v1.6-mistral-7b-hf")
-model = AutoModelForImageTextToText.from_pretrained("llava-hf/llava-v1.6-mistral-7b-hf", quantization_config=quant_config, device_map="auto")
+processor = AutoProcessor.from_pretrained("llava-hf/llava-v1.6-mistral-7b-hf")  
+model = AutoModelForImageTextToText.from_pretrained("llava-hf/llava-v1.6-mistral-7b-hf", quantization_config=quant_config, device_map="auto")  
 
-url = "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/transformers/model_doc/llava_next_ocr.png"
-image = Image.open(requests.get(url, stream=True).raw)
+url = "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/transformers/model_doc/llava_next_ocr.png"  
+image = Image.open(requests.get(url, stream=True).raw)  
 
-conversation = [
-    {
-        "role": "user",
-        "content": [
-            {"type": "image"},
-            {"type": "text", "text": "What does this chart show?"},
-        ],
-    },
-]
-prompt = processor.apply_chat_template(conversation, add_generation_prompt=True)
-inputs = processor(image, prompt, return_tensors="pt").to(model.device)
+conversation = [  
+    {  
+        "role": "user",  
+        "content": [  
+            {"type": "image"},  
+            {"type": "text", "text": "What does this chart show?"},  
+        ],  
+    },  
+]  
+prompt = processor.apply_chat_template(conversation, add_generation_prompt=True)  
+inputs = processor(image, prompt, return_tensors="pt").to("cuda")  
 
-with torch.inference_mode():
-    output = model.generate(**inputs, max_new_tokens=100)
-print(processor.decode(output[0], skip_special_tokens=True))
+with torch.inference_mode():  
+    output = model.generate(**inputs, max_new_tokens=100)  
+print(processor.decode(output[0], skip_special_tokens=True))  
 ```
 
 
@@ -169,8 +166,8 @@ import requests, torch
 
 processor = LlavaNextProcessor.from_pretrained("llava-hf/llava-v1.6-mistral-7b-hf")
 model = LlavaNextForConditionalGeneration.from_pretrained(
-    "llava-hf/llava-v1.6-mistral-7b-hf", dtype=torch.float16, device_map="auto"
-)
+    "llava-hf/llava-v1.6-mistral-7b-hf", torch_dtype=torch.float16
+).to("cuda")
 
 # Load multiple images
 url1 = "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/transformers/model_doc/llava_next_ocr.png"
@@ -183,7 +180,7 @@ conversation = [
     {"role": "user", "content": [{"type": "image"}, {"type": "image"}, {"type": "text", "text": "Compare these two images and describe the differences."}]}
 ]
 prompt = processor.apply_chat_template(conversation, add_generation_prompt=True)
-inputs = processor([image1, image2], prompt, return_tensors="pt").to(model.device)
+inputs = processor([image1, image2], prompt, return_tensors="pt").to("cuda")
 
 output = model.generate(**inputs, max_new_tokens=100)
 print(processor.decode(output[0], skip_special_tokens=True))

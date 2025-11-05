@@ -91,17 +91,16 @@ class DeepseekVLHybridImageProcessorFast(BaseImageProcessorFast):
     high_res_image_std = OPENAI_CLIP_STD
     high_res_size = {"height": 1024, "width": 1024}
     high_res_resample = PILImageResampling.BICUBIC
-    model_input_names = ["pixel_values", "high_res_pixel_values"]
 
     def __init__(self, **kwargs: Unpack[DeepseekVLHybridFastImageProcessorKwargs]):
-        if kwargs.get("image_mean") is None:
+        if kwargs.get("image_mean", None) is None:
             background_color = (127, 127, 127)
         else:
             background_color = tuple([int(x * 255) for x in kwargs.get("image_mean")])
-        if kwargs.get("high_res_image_mean") is None:
+        if kwargs.get("high_res_image_mean", None) is None:
             high_res_background_color = (127, 127, 127)
         else:
-            high_res_background_color = tuple(int(x * 255) for x in kwargs.get("high_res_image_mean"))
+            high_res_background_color = tuple([int(x * 255) for x in kwargs.get("high_res_image_mean")])
         super().__init__(**kwargs)
         self.background_color = tuple(background_color)
         self.high_res_background_color = tuple(high_res_background_color)
@@ -312,15 +311,9 @@ class DeepseekVLHybridImageProcessorFast(BaseImageProcessorFast):
             else high_res_resample
         )
 
-        low_res_resample = kwargs.pop("resample")
-        kwargs["interpolation"] = (
-            pil_torch_interpolation_mapping[low_res_resample]
-            if isinstance(low_res_resample, (int, PILImageResampling))
-            else low_res_resample
-        )
-
         kwargs["size"] = size
         kwargs["high_res_size"] = high_res_size
+        kwargs["default_to_square"] = default_to_square
         kwargs["image_mean"] = image_mean
         kwargs["image_std"] = image_std
         kwargs["high_res_image_mean"] = high_res_image_mean

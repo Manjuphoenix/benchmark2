@@ -14,6 +14,7 @@
 """Testing suite for the PyTorch GLM-4.1V model."""
 
 import copy
+import gc
 import unittest
 
 from transformers import (
@@ -24,7 +25,6 @@ from transformers import (
     is_torch_available,
 )
 from transformers.testing_utils import (
-    cleanup,
     require_flash_attn,
     require_torch,
     require_torch_gpu,
@@ -309,12 +309,13 @@ class Glm4vIntegrationTest(unittest.TestCase):
         ]
 
     def tearDown(self):
-        cleanup(torch_device, gc_collect=True)
+        gc.collect()
+        torch.cuda.empty_cache()
 
     @slow
     def test_small_model_integration_test(self):
         model = Glm4vForConditionalGeneration.from_pretrained(
-            "THUDM/GLM-4.1V-9B-Thinking", dtype="auto", device_map="auto"
+            "THUDM/GLM-4.1V-9B-Thinking", torch_dtype="auto", device_map="auto"
         )
 
         inputs = self.processor.apply_chat_template(
@@ -350,7 +351,7 @@ class Glm4vIntegrationTest(unittest.TestCase):
     @slow
     def test_small_model_integration_test_batch(self):
         model = Glm4vForConditionalGeneration.from_pretrained(
-            "THUDM/GLM-4.1V-9B-Thinking", dtype="auto", device_map="auto"
+            "THUDM/GLM-4.1V-9B-Thinking", torch_dtype="auto", device_map="auto"
         )
         batch_messages = [self.message] * 2
         inputs = self.processor.apply_chat_template(
@@ -373,10 +374,12 @@ class Glm4vIntegrationTest(unittest.TestCase):
     def test_small_model_integration_test_with_video(self):
         processor = AutoProcessor.from_pretrained("THUDM/GLM-4.1V-9B-Thinking", max_image_size={"longest_edge": 50176})
         model = Glm4vForConditionalGeneration.from_pretrained(
-            "THUDM/GLM-4.1V-9B-Thinking", dtype=torch.float16, device_map="auto"
+            "THUDM/GLM-4.1V-9B-Thinking", torch_dtype=torch.float16, device_map="auto"
         )
-        questions = ["Describe this video."]
-        video_urls = ["https://huggingface.co/datasets/hf-internal-testing/fixtures_videos/resolve/main/tennis.mp4"]
+        questions = ["Describe this video."] * 2
+        video_urls = [
+            "https://huggingface.co/datasets/hf-internal-testing/fixtures_videos/resolve/main/tennis.mp4"
+        ] * 2
         messages = [
             [
                 {
@@ -397,7 +400,8 @@ class Glm4vIntegrationTest(unittest.TestCase):
         ).to(torch_device)
         output = model.generate(**inputs, max_new_tokens=30)
         EXPECTED_DECODED_TEXT = [
-            "\n012345Describe this video.\n<think>Got it, let's analyze the video. First, the scene is an indoor tennis court. There are two players: one in the foreground wearing"
+            "\n012345Describe this video.\n<think>Got it, let's analyze the video. First, the scene is a room with a wooden floor, maybe a traditional Japanese room with tatami",
+            "\n012345Describe this video.\n<think>Got it, let's analyze the video. First, the scene is a room with a wooden floor, maybe a traditional Japanese room with tatami"
         ]  # fmt: skip
         self.assertEqual(
             processor.batch_decode(output, skip_special_tokens=True),
@@ -407,7 +411,7 @@ class Glm4vIntegrationTest(unittest.TestCase):
     @slow
     def test_small_model_integration_test_expand(self):
         model = Glm4vForConditionalGeneration.from_pretrained(
-            "THUDM/GLM-4.1V-9B-Thinking", dtype="auto", device_map="auto"
+            "THUDM/GLM-4.1V-9B-Thinking", torch_dtype="auto", device_map="auto"
         )
         inputs = self.processor.apply_chat_template(
             self.message, tokenize=True, add_generation_prompt=True, return_dict=True, return_tensors="pt"
@@ -427,7 +431,7 @@ class Glm4vIntegrationTest(unittest.TestCase):
     @slow
     def test_small_model_integration_test_batch_wo_image(self):
         model = Glm4vForConditionalGeneration.from_pretrained(
-            "THUDM/GLM-4.1V-9B-Thinking", dtype="auto", device_map="auto"
+            "THUDM/GLM-4.1V-9B-Thinking", torch_dtype="auto", device_map="auto"
         )
         message_wo_image = [
             {"role": "user", "content": [{"type": "text", "text": "Who are you?"}]},
@@ -457,7 +461,7 @@ class Glm4vIntegrationTest(unittest.TestCase):
     @slow
     def test_small_model_integration_test_batch_different_resolutions(self):
         model = Glm4vForConditionalGeneration.from_pretrained(
-            "THUDM/GLM-4.1V-9B-Thinking", dtype="auto", device_map="auto"
+            "THUDM/GLM-4.1V-9B-Thinking", torch_dtype="auto", device_map="auto"
         )
         batched_messages = [self.message, self.message2]
         inputs = self.processor.apply_chat_template(
@@ -487,7 +491,7 @@ class Glm4vIntegrationTest(unittest.TestCase):
     def test_small_model_integration_test_batch_flashatt2(self):
         model = Glm4vForConditionalGeneration.from_pretrained(
             "THUDM/GLM-4.1V-9B-Thinking",
-            dtype=torch.bfloat16,
+            torch_dtype=torch.bfloat16,
             attn_implementation="flash_attention_2",
             device_map="auto",
         )
@@ -505,8 +509,8 @@ class Glm4vIntegrationTest(unittest.TestCase):
         output = model.generate(**inputs, max_new_tokens=30)
 
         EXPECTED_DECODED_TEXT = [
-            "\nWhat kind of dog is this?\n<think>Got it, let's look at the image. The animal in the picture is not a dog; it's a cat. Specifically, it looks",
-            "\nWhat kind of dog is this?\n<think>Got it, let's look at the image. Wait, the animals here are cats, not dogs. The question is about a dog, but",
+            "\nWhat kind of dog is this?\n<think>Got it, let's look at the image. The animal in the picture has a stocky build, thick fur, and a face that's",
+            "\nWhat kind of dog is this?\n<think>Got it, let's look at the image. Wait, the animals here are cats, not dogs. The question is about a dog, but"
         ]  # fmt: skip
         self.assertEqual(
             self.processor.batch_decode(output, skip_special_tokens=True),
@@ -519,7 +523,7 @@ class Glm4vIntegrationTest(unittest.TestCase):
     def test_small_model_integration_test_batch_wo_image_flashatt2(self):
         model = Glm4vForConditionalGeneration.from_pretrained(
             "THUDM/GLM-4.1V-9B-Thinking",
-            dtype=torch.bfloat16,
+            torch_dtype=torch.bfloat16,
             attn_implementation="flash_attention_2",
             device_map="auto",
         )

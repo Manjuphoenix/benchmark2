@@ -64,7 +64,7 @@ class QAPipelineTests(unittest.TestCase):
         image_processor=None,
         feature_extractor=None,
         processor=None,
-        dtype="float32",
+        torch_dtype="float32",
     ):
         if isinstance(model.config, LxmertConfig):
             # This is an bimodal model, we need to find a more consistent way
@@ -76,7 +76,7 @@ class QAPipelineTests(unittest.TestCase):
             feature_extractor=feature_extractor,
             image_processor=image_processor,
             processor=processor,
-            dtype=dtype,
+            torch_dtype=torch_dtype,
         )
 
         examples = [
@@ -179,7 +179,7 @@ class QAPipelineTests(unittest.TestCase):
         question_answerer = pipeline(
             "question-answering",
             model="sshleifer/tiny-distilbert-base-cased-distilled-squad",
-            dtype=torch.float16,
+            torch_dtype=torch.float16,
         )
 
         outputs = question_answerer(
@@ -194,7 +194,7 @@ class QAPipelineTests(unittest.TestCase):
         question_answerer = pipeline(
             "question-answering",
             model="sshleifer/tiny-distilbert-base-cased-distilled-squad",
-            dtype=torch.bfloat16,
+            torch_dtype=torch.bfloat16,
         )
 
         outputs = question_answerer(

@@ -6,7 +6,6 @@ from ..utils import is_torch_xpu_available, logging
 from ..utils.import_utils import is_torch_greater_or_equal
 
 
-
 logger = logging.get_logger(__name__)
 
 
@@ -67,6 +66,12 @@ def sdpa_attention_forward(
 
     if attention_mask is not None and attention_mask.ndim == 4:
         attention_mask = attention_mask[:, :, :, : key.shape[-2]]
+
+    # SDPA with memory-efficient backend is bugged with non-contiguous inputs and custom attn_mask for some torch versions
+    # Reference: https://github.com/pytorch/pytorch/issues/112577.
+    query = query.contiguous()
+    key = key.contiguous()
+    value = value.contiguous()
 
     # We dispatch to SDPA's Flash Attention or Efficient kernels via this `is_causal` if statement instead of an inline conditional assignment
     # in SDPA to support both torch.compile's dynamic shapes and full graph options. An inline conditional prevents dynamic shapes from compiling.

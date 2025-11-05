@@ -16,7 +16,6 @@ import importlib.metadata
 import tempfile
 import unittest
 
-import pytest
 from packaging import version
 
 from transformers import (
@@ -129,7 +128,9 @@ class MixedInt8Test(BaseMixedInt8Test):
         super().setUp()
 
         # Models and tokenizer
-        self.model_fp16 = AutoModelForCausalLM.from_pretrained(self.model_name, dtype=torch.float16, device_map="auto")
+        self.model_fp16 = AutoModelForCausalLM.from_pretrained(
+            self.model_name, torch_dtype=torch.float16, device_map="auto"
+        )
         self.model_8bit = AutoModelForCausalLM.from_pretrained(self.model_name, load_in_8bit=True, device_map="auto")
 
     def tearDown(self):
@@ -995,7 +996,6 @@ class Bnb8bitCompile(unittest.TestCase):
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         self.model_8bit = AutoModelForCausalLM.from_pretrained(self.model_name, load_in_8bit=True)
 
-    @pytest.mark.torch_compile_test
     def test_generate_compile(self):
         encoded_input = self.tokenizer(self.input_text, return_tensors="pt")
 

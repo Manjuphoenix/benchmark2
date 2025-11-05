@@ -34,8 +34,12 @@ import numpy as np
 from PIL import Image
 import glob
 import random
+import ipdb
+
 
 import pycocotools.mask as mask_util
+
+# from unsloth import unsloth_train
 
 from sed import add_lora_config
 
@@ -44,6 +48,8 @@ from detectron2.utils.comm import all_gather, is_main_process, synchronize
 import json
 
 import peft
+
+from torch.nn.parallel import DistributedDataParallel as DDP
 
 # from detectron2.evaluation import SemSegGzeroEvaluator
 # from mask_former.evaluation.sem_seg_evaluation_gzero import SemSegGzeroEvaluator
@@ -84,7 +90,7 @@ def create_ddp_model(model, *, fp16_compression=False, **kwargs):
         return model
     if "device_ids" not in kwargs:
         kwargs["device_ids"] = [comm.get_local_rank()]
-    ddp = torch.nn.DistributedDataParallel(model, **kwargs)
+    ddp = DDP(model, **kwargs)
     if fp16_compression:
         from torch.distributed.algorithms.ddp_comm_hooks import default as comm_hooks
 
@@ -601,8 +607,11 @@ class Trainer(DefaultTrainer):
         self.optimizer = self.build_optimizer(cfg, self.model)
         self.data_loader = self.build_train_loader(cfg)
 
+        # self.model = create_ddp_model(
+        #     self.model, broadcast_buffers=False, find_unused_parameters=True
+        # )
         self.model = create_ddp_model(
-            self.model, broadcast_buffers=False, find_unused_parameters=True
+            self.model, broadcast_buffers=False
         )
         self._trainer = (AMPTrainer if cfg.SOLVER.AMP.ENABLED else SimpleTrainer)(
             self.model, self.data_loader, self.optimizer
@@ -959,20 +968,40 @@ def main(args):
     trainer.resume_or_load(resume=args.resume)
 
     # Add lora to the base model, reset the necessary model confgis/parameters to train lora
+    # if cfg.MODEL.LORA.ENABLED:
+    #     peft_model = add_lora(cfg, trainer.model)
+    #     trainer.reset_trainer(cfg, peft_model)
+    #     # Attaching LoRAs changes the modules to which hooks are set, we need to reset
+    #     trainer.model.base_model.model.reset_forward_hooks()
+    #     trainer.model.print_trainable_parameters()
+
+    # output = trainer.train()
+    # # idpb.set_trace()
+    # # output = unsloth_train(trainer)
+
+    # # Save only the LoRA weights to LoRA DB
+    # if cfg.MODEL.LORA.ENABLED == True:
+    #     trainer.model.save_pretrained(cfg.MODEL.LORA.DB_PATH)
+
+    # return output
+
+
     if cfg.MODEL.LORA.ENABLED:
         peft_model = add_lora(cfg, trainer.model)
         trainer.reset_trainer(cfg, peft_model)
         # Attaching LoRAs changes the modules to which hooks are set, we need to reset
-        trainer.model.base_model.model.reset_forward_hooks()
-        trainer.model.print_trainable_parameters()
+        # print("____---___----__----_", trainer.model.module.base_model.model, "--___-----___--")
+        # print(HEY)
+        ############# FOR DPP #######################
+        # trainer.model.module.base_model.reset_forward_hooks()
+
+        ddp_model = trainer.model.module.base_model  # unwrap
+        for m in ddp_model.modules():
+            m._forward_hooks.clear()
+        # trainer.model.base_model.model.reset_forward_hooks()
+        # trainer.model.print_trainable_parameters()
 
     output = trainer.train()
-
-    # Save only the LoRA weights to LoRA DB
-    if cfg.MODEL.LORA.ENABLED == True:
-        trainer.model.save_pretrained(cfg.MODEL.LORA.DB_PATH)
-
-    return output
     # return trainer.train()
 
 

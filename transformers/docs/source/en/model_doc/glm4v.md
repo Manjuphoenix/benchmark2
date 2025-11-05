@@ -13,7 +13,6 @@ specific language governing permissions and limitations under the License.
 rendered properly in your Markdown viewer.
 
 -->
-*This model was released on 2025-07-01 and added to Hugging Face Transformers on 2025-06-25.*
 
 <div style="float: right;">
     <div class="flex flex-wrap space-x-1">
@@ -59,7 +58,7 @@ pipe = pipeline(
     task="image-text-to-text",
     model="THUDM/GLM-4.1V-9B-Thinking",
     device=0,
-    dtype=torch.bfloat16
+    torch_dtype=torch.bfloat16
 )
 messages = [
     {
@@ -84,7 +83,7 @@ from transformers import Glm4vForConditionalGeneration, AutoProcessor
 
 model = Glm4vForConditionalGeneration.from_pretrained(
     "THUDM/GLM-4.1V-9B-Thinking",
-    dtype=torch.bfloat16,
+    torch_dtype=torch.bfloat16,
     device_map="auto",
     attn_implementation="sdpa"
 )
@@ -112,7 +111,7 @@ inputs = processor.apply_chat_template(
     tokenize=True,
     return_dict=True,
     return_tensors="pt"
-).to(model.device)
+).to("cuda")
 
 generated_ids = model.generate(**inputs, max_new_tokens=128)
 generated_ids_trimmed = [
@@ -130,16 +129,14 @@ Using GLM-4.1V with video input is similar to using it with image input.
 The model can process video data and generate text based on the content of the video.
 
 ```python
-from transformers import AutoProcessor, Glm4vForConditionalGeneration, infer_device
+from transformers import AutoProcessor, Glm4vForConditionalGeneration
 import torch
-
-device = f"{infer_device()}:0"
 
 processor = AutoProcessor.from_pretrained("THUDM/GLM-4.1V-9B-Thinking")
 model = Glm4vForConditionalGeneration.from_pretrained(
     pretrained_model_name_or_path="THUDM/GLM-4.1V-9B-Thinking",
-    dtype=torch.bfloat16,
-    device_map=device
+    torch_dtype=torch.bfloat16,
+    device_map="cuda:0"
 )
 
 messages = [
@@ -157,7 +154,7 @@ messages = [
         ],
     }
 ]
-inputs = processor.apply_chat_template(messages, tokenize=True, add_generation_prompt=True, return_dict=True, return_tensors="pt", padding=True).to(model.device)
+inputs = processor.apply_chat_template(messages, tokenize=True, add_generation_prompt=True, return_dict=True, return_tensors="pt", padding=True).to("cuda:0")
 generated_ids = model.generate(**inputs, max_new_tokens=1024, do_sample=True, temperature=1.0)
 output_text = processor.decode(generated_ids[0][inputs["input_ids"].shape[1] :], skip_special_tokens=True)
 print(output_text)

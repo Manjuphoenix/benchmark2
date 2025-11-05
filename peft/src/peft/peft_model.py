@@ -887,8 +887,13 @@ class PeftModel(PushToHubMixin, torch.nn.Module):
         """
         Forward pass of the model.
         """
+        # with torch.no_grad():
         with self._enable_peft_forward_hooks(*args, **kwargs):
             kwargs = {k: v for k, v in kwargs.items() if k not in self.special_peft_forward_args}
+            # import gc
+            # gc.collect()
+            # torch.cuda.empty_cache()
+            # gc.collect()
             return self.get_base_model()(*args, **kwargs)
 
     def generate(self, *args, **kwargs):

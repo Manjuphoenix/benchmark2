@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: transformers
-Version: 4.57.0.dev0
+Version: 4.55.4
 Summary: State-of-the-art Machine Learning for JAX, PyTorch and TensorFlow
 Home-page: https://github.com/huggingface/transformers
 Author: The Hugging Face team (past and future) with the help of all our contributors (https://github.com/huggingface/transformers/graphs/contributors)
@@ -30,7 +30,7 @@ Requires-Dist: packaging>=20.0
 Requires-Dist: pyyaml>=5.1
 Requires-Dist: regex!=2019.12.17
 Requires-Dist: requests
-Requires-Dist: tokenizers<=0.23.0,>=0.22.0
+Requires-Dist: tokenizers<0.22,>=0.21
 Requires-Dist: safetensors>=0.4.3
 Requires-Dist: tqdm>=4.27
 Provides-Extra: ja
@@ -58,7 +58,7 @@ Requires-Dist: tensorflow-text<2.16; extra == "tf-cpu"
 Requires-Dist: keras-nlp<0.14.0,>=0.3.1; extra == "tf-cpu"
 Requires-Dist: tensorflow-probability<0.24; extra == "tf-cpu"
 Provides-Extra: torch
-Requires-Dist: torch>=2.2; extra == "torch"
+Requires-Dist: torch>=2.1; extra == "torch"
 Requires-Dist: accelerate>=0.26.0; extra == "torch"
 Provides-Extra: accelerate
 Requires-Dist: accelerate>=0.26.0; extra == "accelerate"
@@ -74,7 +74,7 @@ Requires-Dist: flax<=0.7.0,>=0.4.1; extra == "flax"
 Requires-Dist: optax<=0.1.4,>=0.0.8; extra == "flax"
 Requires-Dist: scipy<1.13.0; extra == "flax"
 Provides-Extra: tokenizers
-Requires-Dist: tokenizers<=0.23.0,>=0.22.0; extra == "tokenizers"
+Requires-Dist: tokenizers<0.22,>=0.21; extra == "tokenizers"
 Provides-Extra: ftfy
 Requires-Dist: ftfy; extra == "ftfy"
 Provides-Extra: onnxruntime
@@ -111,7 +111,7 @@ Requires-Dist: pydantic>=2; extra == "serving"
 Requires-Dist: uvicorn; extra == "serving"
 Requires-Dist: fastapi; extra == "serving"
 Requires-Dist: starlette; extra == "serving"
-Requires-Dist: torch>=2.2; extra == "serving"
+Requires-Dist: torch>=2.1; extra == "serving"
 Requires-Dist: accelerate>=0.26.0; extra == "serving"
 Provides-Extra: audio
 Requires-Dist: librosa; extra == "audio"
@@ -163,8 +163,6 @@ Requires-Dist: tiktoken; extra == "tiktoken"
 Requires-Dist: blobfile; extra == "tiktoken"
 Provides-Extra: mistral-common
 Requires-Dist: mistral-common[opencv]>=1.6.3; extra == "mistral-common"
-Provides-Extra: chat-template
-Requires-Dist: jinja2>=3.1.0; extra == "chat-template"
 Provides-Extra: testing
 Requires-Dist: pytest>=7.2.0; extra == "testing"
 Requires-Dist: pytest-asyncio; extra == "testing"
@@ -246,7 +244,7 @@ Requires-Dist: onnxconverter-common; extra == "all"
 Requires-Dist: tf2onnx; extra == "all"
 Requires-Dist: tensorflow-text<2.16; extra == "all"
 Requires-Dist: keras-nlp<0.14.0,>=0.3.1; extra == "all"
-Requires-Dist: torch>=2.2; extra == "all"
+Requires-Dist: torch>=2.1; extra == "all"
 Requires-Dist: accelerate>=0.26.0; extra == "all"
 Requires-Dist: jax<=0.4.13,>=0.4.1; extra == "all"
 Requires-Dist: jaxlib<=0.4.13,>=0.4.1; extra == "all"
@@ -255,7 +253,7 @@ Requires-Dist: optax<=0.1.4,>=0.0.8; extra == "all"
 Requires-Dist: scipy<1.13.0; extra == "all"
 Requires-Dist: sentencepiece!=0.1.92,>=0.1.91; extra == "all"
 Requires-Dist: protobuf; extra == "all"
-Requires-Dist: tokenizers<=0.23.0,>=0.22.0; extra == "all"
+Requires-Dist: tokenizers<0.22,>=0.21; extra == "all"
 Requires-Dist: torchaudio; extra == "all"
 Requires-Dist: librosa; extra == "all"
 Requires-Dist: pyctcdecode>=0.4.0; extra == "all"
@@ -274,7 +272,6 @@ Requires-Dist: accelerate>=0.26.0; extra == "all"
 Requires-Dist: av; extra == "all"
 Requires-Dist: num2words; extra == "all"
 Requires-Dist: mistral-common[opencv]>=1.6.3; extra == "all"
-Requires-Dist: jinja2>=3.1.0; extra == "all"
 Provides-Extra: dev-torch
 Requires-Dist: pytest>=7.2.0; extra == "dev-torch"
 Requires-Dist: pytest-asyncio; extra == "dev-torch"
@@ -305,11 +302,11 @@ Requires-Dist: faiss-cpu; extra == "dev-torch"
 Requires-Dist: datasets>=2.15.0; extra == "dev-torch"
 Requires-Dist: cookiecutter==1.7.3; extra == "dev-torch"
 Requires-Dist: mistral-common[opencv]>=1.6.3; extra == "dev-torch"
-Requires-Dist: torch>=2.2; extra == "dev-torch"
+Requires-Dist: torch>=2.1; extra == "dev-torch"
 Requires-Dist: accelerate>=0.26.0; extra == "dev-torch"
 Requires-Dist: sentencepiece!=0.1.92,>=0.1.91; extra == "dev-torch"
 Requires-Dist: protobuf; extra == "dev-torch"
-Requires-Dist: tokenizers<=0.23.0,>=0.22.0; extra == "dev-torch"
+Requires-Dist: tokenizers<0.22,>=0.21; extra == "dev-torch"
 Requires-Dist: torchaudio; extra == "dev-torch"
 Requires-Dist: librosa; extra == "dev-torch"
 Requires-Dist: pyctcdecode>=0.4.0; extra == "dev-torch"
@@ -380,7 +377,7 @@ Requires-Dist: tensorflow-text<2.16; extra == "dev-tensorflow"
 Requires-Dist: keras-nlp<0.14.0,>=0.3.1; extra == "dev-tensorflow"
 Requires-Dist: sentencepiece!=0.1.92,>=0.1.91; extra == "dev-tensorflow"
 Requires-Dist: protobuf; extra == "dev-tensorflow"
-Requires-Dist: tokenizers<=0.23.0,>=0.22.0; extra == "dev-tensorflow"
+Requires-Dist: tokenizers<0.22,>=0.21; extra == "dev-tensorflow"
 Requires-Dist: Pillow<=15.0,>=10.0.1; extra == "dev-tensorflow"
 Requires-Dist: datasets>=2.15.0; extra == "dev-tensorflow"
 Requires-Dist: ruff==0.11.2; extra == "dev-tensorflow"
@@ -405,7 +402,7 @@ Requires-Dist: onnxconverter-common; extra == "dev"
 Requires-Dist: tf2onnx; extra == "dev"
 Requires-Dist: tensorflow-text<2.16; extra == "dev"
 Requires-Dist: keras-nlp<0.14.0,>=0.3.1; extra == "dev"
-Requires-Dist: torch>=2.2; extra == "dev"
+Requires-Dist: torch>=2.1; extra == "dev"
 Requires-Dist: accelerate>=0.26.0; extra == "dev"
 Requires-Dist: jax<=0.4.13,>=0.4.1; extra == "dev"
 Requires-Dist: jaxlib<=0.4.13,>=0.4.1; extra == "dev"
@@ -414,7 +411,7 @@ Requires-Dist: optax<=0.1.4,>=0.0.8; extra == "dev"
 Requires-Dist: scipy<1.13.0; extra == "dev"
 Requires-Dist: sentencepiece!=0.1.92,>=0.1.91; extra == "dev"
 Requires-Dist: protobuf; extra == "dev"
-Requires-Dist: tokenizers<=0.23.0,>=0.22.0; extra == "dev"
+Requires-Dist: tokenizers<0.22,>=0.21; extra == "dev"
 Requires-Dist: torchaudio; extra == "dev"
 Requires-Dist: librosa; extra == "dev"
 Requires-Dist: pyctcdecode>=0.4.0; extra == "dev"
@@ -433,7 +430,6 @@ Requires-Dist: accelerate>=0.26.0; extra == "dev"
 Requires-Dist: av; extra == "dev"
 Requires-Dist: num2words; extra == "dev"
 Requires-Dist: mistral-common[opencv]>=1.6.3; extra == "dev"
-Requires-Dist: jinja2>=3.1.0; extra == "dev"
 Requires-Dist: pytest>=7.2.0; extra == "dev"
 Requires-Dist: pytest-asyncio; extra == "dev"
 Requires-Dist: pytest-rich; extra == "dev"
@@ -489,8 +485,8 @@ Requires-Dist: protobuf; extra == "torchhub"
 Requires-Dist: regex!=2019.12.17; extra == "torchhub"
 Requires-Dist: requests; extra == "torchhub"
 Requires-Dist: sentencepiece!=0.1.92,>=0.1.91; extra == "torchhub"
-Requires-Dist: torch>=2.2; extra == "torchhub"
-Requires-Dist: tokenizers<=0.23.0,>=0.22.0; extra == "torchhub"
+Requires-Dist: torch>=2.1; extra == "torchhub"
+Requires-Dist: tokenizers<0.22,>=0.21; extra == "torchhub"
 Requires-Dist: tqdm>=4.27; extra == "torchhub"
 Provides-Extra: benchmark
 Requires-Dist: optimum-benchmark>=0.3.0; extra == "benchmark"
@@ -661,7 +657,7 @@ chat = [
     {"role": "user", "content": "Hey, can you tell me any fun things to do in New York?"}
 ]
 
-pipeline = pipeline(task="text-generation", model="meta-llama/Meta-Llama-3-8B-Instruct", dtype=torch.bfloat16, device_map="auto")
+pipeline = pipeline(task="text-generation", model="meta-llama/Meta-Llama-3-8B-Instruct", torch_dtype=torch.bfloat16, device_map="auto")
 response = pipeline(chat, max_new_tokens=512)
 print(response[0]["generated_text"][-1]["content"])
 ```

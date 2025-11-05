@@ -15,11 +15,14 @@ MODEL:
     IN_FEATURES: ["res2", "res3", "res4", "res5"]
     IGNORE_VALUE: 255
     # NUM_CLASSES: 171
-    NUM_CLASSES: 150
+    # NUM_CLASSES: 150
+    NUM_CLASSES: 19
     # TRAIN_CLASS_JSON: "datasets/coco.json"
     # TEST_CLASS_JSON: "datasets/coco.json"
-    TRAIN_CLASS_JSON: "datasets/ade150.json"
-    TEST_CLASS_JSON: "datasets/ade150.json"
+    # TRAIN_CLASS_JSON: "datasets/ade150.json"
+    # TEST_CLASS_JSON: "datasets/ade150.json"
+    TRAIN_CLASS_JSON: "datasets/cs19.json"
+    TEST_CLASS_JSON: "datasets/cs19.json"
     CLIP_PRETRAINED: "Convnext-L"
     PROMPT_DEPTH: 0
     PROMPT_LENGTH: 0
@@ -55,10 +58,12 @@ INPUT:
   FORMAT: "RGB"
   DATASET_MAPPER_NAME: "mask_former_semantic"
 SOLVER:
-  IMS_PER_BATCH: 4
+  IMS_PER_BATCH: 2
   LR_SCHEDULER_NAME: WarmupCosineLR
-  BASE_LR: 0.0002
-  MAX_ITER: 80000
+  # BASE_LR: 0.0002
+  BASE_LR: 0.0001
+  MAX_ITER: 2000
+  # MAX_ITER: 80000
   BACKBONE_MULTIPLIER: 0.0
   CLIP_MULTIPLIER: 0.01
 TEST:

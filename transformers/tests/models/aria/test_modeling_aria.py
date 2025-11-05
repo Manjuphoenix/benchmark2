@@ -15,7 +15,6 @@
 
 import unittest
 
-import pytest
 import requests
 
 from transformers import (
@@ -212,7 +211,6 @@ class AriaForConditionalGenerationModelTest(ModelTesterMixin, GenerationTesterMi
         pass
 
     @unittest.skip(reason="Compile not yet supported because in LLava models")
-    @pytest.mark.torch_compile_test
     def test_sdpa_can_compile_dynamic(self):
         pass
 
@@ -226,6 +224,10 @@ class AriaForConditionalGenerationModelTest(ModelTesterMixin, GenerationTesterMi
 
     @unittest.skip(reason="Unstable test")
     def test_initialization(self):
+        pass
+
+    @unittest.skip(reason="Unstable test")
+    def test_dola_decoding_sample(self):
         pass
 
     @unittest.skip(reason="Dynamic control flow due to MoE")

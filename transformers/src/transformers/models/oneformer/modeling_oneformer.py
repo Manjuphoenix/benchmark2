@@ -29,7 +29,6 @@ from ...activations import ACT2FN
 from ...modeling_layers import GradientCheckpointingLayer
 from ...modeling_outputs import BaseModelOutput
 from ...modeling_utils import PreTrainedModel
-from ...pytorch_utils import compile_compatible_method_lru_cache
 from ...utils import (
     ModelOutput,
     auto_docstring,
@@ -1396,7 +1395,7 @@ class OneFormerPixelDecoder(nn.Module):
         position_embeddings_list = []
         for level, source in enumerate(features[::-1][: self.num_feature_levels]):
             sources.append(self.input_projections[level](source))
-            position_embeddings_list.append(self.position_embedding(source.shape, source.device, source.dtype))
+            position_embeddings_list.append(self.position_embedding(source))
 
         masks = [torch.zeros((x.size(0), x.size(2), x.size(3)), device=x.device, dtype=torch.bool) for x in sources]
 
@@ -2355,11 +2354,7 @@ class OneFormerTransformerModule(nn.Module):
 
         for i in range(self.num_feature_levels):
             size_list.append(multi_scale_features[i].shape[-2:])
-            multi_stage_positional_embeddings.append(
-                self.position_embedder(
-                    multi_scale_features[i].shape, multi_scale_features[i].device, multi_scale_features[i].dtype, None
-                ).flatten(2)
-            )
+            multi_stage_positional_embeddings.append(self.position_embedder(multi_scale_features[i], None).flatten(2))
             multi_stage_features.append(
                 self.input_projections[i](multi_scale_features[i]).flatten(2)
                 + self.level_embed.weight[i][None, :, None]
@@ -2375,7 +2370,7 @@ class OneFormerTransformerModule(nn.Module):
         query_embeddings = self.queries_embedder.weight.unsqueeze(1).repeat(1, batch_size, 1)
         task_token = task_token.unsqueeze(0)
 
-        query_features = self.position_embedder(mask_features.shape, mask_features.device, mask_features.dtype, None)
+        query_features = self.position_embedder(mask_features, None)
 
         return self.decoder(
             task_token=task_token,
@@ -2408,17 +2403,10 @@ class OneFormerSinePositionEmbedding(nn.Module):
         self.normalize = normalize
         self.scale = 2 * math.pi if scale is None else scale
 
-    @compile_compatible_method_lru_cache(maxsize=1)
-    def forward(
-        self,
-        shape: torch.Size,
-        device: Union[torch.device, str],
-        dtype: torch.dtype,
-        mask: Optional[Tensor] = None,
-    ) -> Tensor:
+    def forward(self, x: Tensor, mask: Optional[Tensor] = None) -> Tensor:
         if mask is None:
-            mask = torch.zeros((shape[0], shape[2], shape[3]), device=device, dtype=torch.bool)
-        not_mask = (~mask).to(dtype)
+            mask = torch.zeros((x.size(0), x.size(2), x.size(3)), device=x.device, dtype=torch.bool)
+        not_mask = (~mask).to(x.dtype)
         y_embed = not_mask.cumsum(1)
         x_embed = not_mask.cumsum(2)
         if self.normalize:
@@ -2426,7 +2414,7 @@ class OneFormerSinePositionEmbedding(nn.Module):
             y_embed = y_embed / (y_embed[:, -1:, :] + eps) * self.scale
             x_embed = x_embed / (x_embed[:, :, -1:] + eps) * self.scale
 
-        dim_t = torch.arange(self.num_pos_feats, dtype=torch.int64, device=device).to(dtype)
+        dim_t = torch.arange(self.num_pos_feats, dtype=torch.int64, device=x.device).type_as(x)
         dim_t = self.temperature ** (2 * torch.div(dim_t, 2, rounding_mode="floor") / self.num_pos_feats)
 
         pos_x = x_embed[:, :, :, None] / dim_t
@@ -2806,7 +2794,11 @@ class OneFormerPreTrainedModel(PreTrainedModel):
             nn.init.constant_(module.output_proj.bias.data, 0.0)
         elif isinstance(module, OneFormerPixelDecoder):
             nn.init.normal_(module.level_embed, std=0)
-        elif isinstance(module, (OneFormerTransformerDecoderLayer, OneFormerTransformerDecoderQueryTransformer)):
+        elif isinstance(module, OneFormerTransformerDecoderLayer):
+            for p in module.parameters():
+                if p.dim() > 1:
+                    nn.init.xavier_uniform_(p, gain=xavier_std)
+        elif isinstance(module, OneFormerTransformerDecoderQueryTransformer):
             for p in module.parameters():
                 if p.dim() > 1:
                     nn.init.xavier_uniform_(p, gain=xavier_std)

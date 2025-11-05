@@ -315,7 +315,9 @@ class TestTrainerExt(TestCasePlus):
             --eval_steps {str(eval_steps)}
         """.split()
 
-        args_predict = ["--do_predict"]
+        args_predict = """
+            --do_predict
+        """.split()
 
         args = []
         if do_train:
@@ -328,11 +330,11 @@ class TestTrainerExt(TestCasePlus):
             args += args_predict
 
         if predict_with_generate:
-            args += ["--predict_with_generate"]
+            args += "--predict_with_generate".split()
 
         if do_train:
             if optim == "adafactor":
-                args += ["--adafactor"]
+                args += "--adafactor".split()
             else:
                 args += f"--optim {optim}".split()
 

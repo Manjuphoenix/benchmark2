@@ -11,7 +11,6 @@ specific language governing permissions and limitations under the License.
 ⚠️ Note that this file is in Markdown but contains specific syntax for our doc-builder (similar to MDX) that may not be
 rendered properly in your Markdown viewer.
 -->
-*This model was released on 2024-06-27 and added to Hugging Face Transformers on 2024-12-17.*
 
 <div style="float: right;">
     <div class="flex flex-wrap space-x-1">
@@ -46,8 +45,8 @@ model_name = "vidore/colpali-v1.3-hf"
 
 model = ColPaliForRetrieval.from_pretrained(
     model_name,
-    dtype=torch.bfloat16,
-    device_map="auto",  # "cpu", "cuda", "xpu", or "mps" for Apple Silicon
+    torch_dtype=torch.bfloat16,
+    device_map="auto",  # "cpu", "cuda", or "mps" for Apple Silicon
 )
 processor = ColPaliProcessor.from_pretrained(model_name)
 
@@ -119,7 +118,7 @@ bnb_config = BitsAndBytesConfig(
 model = ColPaliForRetrieval.from_pretrained(
     model_name,
     quantization_config=bnb_config,
-    device_map="auto",
+    device_map="cuda",
 )
 
 processor = ColPaliProcessor.from_pretrained(model_name)

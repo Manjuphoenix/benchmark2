@@ -21,7 +21,7 @@ from typing import Optional, Union
 import torch
 from torch import nn
 
-from ...modeling_utils import PreTrainedAudioTokenizerBase
+from ...modeling_utils import PreTrainedModel
 from ...utils import (
     ModelOutput,
     auto_docstring,
@@ -449,7 +449,7 @@ class EncodecResidualVectorQuantizer(nn.Module):
 
 
 @auto_docstring
-class EncodecPreTrainedModel(PreTrainedAudioTokenizerBase):
+class EncodecPreTrainedModel(PreTrainedModel):
     config: EncodecConfig
     base_model_prefix = "encodec"
     main_input_name = "input_values"
@@ -498,6 +498,9 @@ class EncodecModel(EncodecPreTrainedModel):
 
     def get_encoder(self):
         return self.encoder
+
+    def get_decoder(self):
+        return self.decoder
 
     def _encode_frame(
         self, input_values: torch.Tensor, bandwidth: float

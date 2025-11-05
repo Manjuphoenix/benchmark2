@@ -431,7 +431,7 @@ def gen_sine_position_embeddings(pos_tensor, d_model):
     pos_x = torch.stack((pos_x[:, :, 0::2].sin(), pos_x[:, :, 1::2].cos()), dim=3).flatten(2)
     pos_y = torch.stack((pos_y[:, :, 0::2].sin(), pos_y[:, :, 1::2].cos()), dim=3).flatten(2)
     pos = torch.cat((pos_y, pos_x), dim=2)
-    return pos.to(pos_tensor.dtype)
+    return pos
 
 
 def inverse_sigmoid(x, eps=1e-5):
@@ -536,10 +536,6 @@ class DetrAttention(nn.Module):
                 raise ValueError(
                     f"Attention mask should be of size {(batch_size, 1, target_len, source_len)}, but is"
                     f" {attention_mask.size()}"
-                )
-            if attention_mask.dtype == torch.bool:
-                attention_mask = torch.zeros_like(attention_mask, dtype=attn_weights.dtype).masked_fill_(
-                    attention_mask, -torch.inf
                 )
             attn_weights = attn_weights.view(batch_size, self.num_heads, target_len, source_len) + attention_mask
             attn_weights = attn_weights.view(batch_size * self.num_heads, target_len, source_len)
@@ -657,10 +653,6 @@ class ConditionalDetrAttention(nn.Module):
                 raise ValueError(
                     f"Attention mask should be of size {(batch_size, 1, target_len, source_len)}, but is"
                     f" {attention_mask.size()}"
-                )
-            if attention_mask.dtype == torch.bool:
-                attention_mask = torch.zeros_like(attention_mask, dtype=attn_weights.dtype).masked_fill_(
-                    attention_mask, -torch.inf
                 )
             attn_weights = attn_weights.view(batch_size, self.num_heads, target_len, source_len) + attention_mask
             attn_weights = attn_weights.view(batch_size * self.num_heads, target_len, source_len)
@@ -1324,6 +1316,9 @@ class ConditionalDetrModel(ConditionalDetrPreTrainedModel):
 
     def get_encoder(self):
         return self.encoder
+
+    def get_decoder(self):
+        return self.decoder
 
     def freeze_backbone(self):
         for name, param in self.backbone.conv_encoder.model.named_parameters():

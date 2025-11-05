@@ -62,7 +62,7 @@ class Dots1TopkRouter(DeepseekV3TopkRouter):
 
 class Dots1DecoderLayer(DeepseekV3DecoderLayer):
     def __init__(self, config: Dots1Config, layer_idx: int):
-        super().__init__(config, layer_idx)
+        super().__init__()
         self.attention_type = config.layer_types[layer_idx]
 
 

@@ -267,6 +267,7 @@ class TableQuestionAnsweringPipeline(Pipeline):
                 )
 
                 coords_to_probs = collections.defaultdict(list)
+                token_type_ids_example = token_type_ids_example
                 for i, p in enumerate(tf.squeeze(probabilities).numpy().tolist()):
                     segment_id = token_type_ids_example[:, 0].tolist()[i]
                     col = token_type_ids_example[:, 1].tolist()[i] - 1
@@ -450,7 +451,7 @@ class TableQuestionAnsweringPipeline(Pipeline):
 
                 answers.append(answer)
             if len(answer) == 0:
-                raise PipelineException("Table question answering", self.model.name_or_path, "Empty answer")
+                raise PipelineException("Empty answer")
         else:
             answers = [{"answer": answer} for answer in self.tokenizer.batch_decode(outputs, skip_special_tokens=True)]
 

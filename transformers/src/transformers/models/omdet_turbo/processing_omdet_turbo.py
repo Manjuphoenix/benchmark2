@@ -289,17 +289,21 @@ class OmDetTurboProcessor(ProcessorMixin):
 
         return encoding
 
-    @property
-    def model_input_names(self):
-        image_processor_input_names = self.image_processor.model_input_names
-        tokenizer_input_names = [
-            "classes_attention_mask",
-            "tasks_attention_mask",
-            "tasks_input_ids",
-            "classes_input_ids",
-            "classes_structure",
-        ]
-        return tokenizer_input_names + image_processor_input_names
+    # Copied from transformers.models.blip.processing_blip.BlipProcessor.batch_decode with BertTokenizerFast->PreTrainedTokenizer
+    def batch_decode(self, *args, **kwargs):
+        """
+        This method forwards all its arguments to PreTrainedTokenizer's [`~PreTrainedTokenizer.batch_decode`]. Please
+        refer to the docstring of this method for more information.
+        """
+        return self.tokenizer.batch_decode(*args, **kwargs)
+
+    # Copied from transformers.models.blip.processing_blip.BlipProcessor.decode with BertTokenizerFast->PreTrainedTokenizer
+    def decode(self, *args, **kwargs):
+        """
+        This method forwards all its arguments to PreTrainedTokenizer's [`~PreTrainedTokenizer.decode`]. Please refer to
+        the docstring of this method for more information.
+        """
+        return self.tokenizer.decode(*args, **kwargs)
 
     def _get_default_image_size(self) -> tuple[int, int]:
         height = (
