@@ -35,6 +35,7 @@ from PIL import Image
 import glob
 import random
 import ipdb
+import cv2
 
 
 import pycocotools.mask as mask_util
@@ -1001,8 +1002,16 @@ def main(args):
         # trainer.model.base_model.model.reset_forward_hooks()
         # trainer.model.print_trainable_parameters()
 
+
+    # trainer.resume_or_load(resume=args.resume)
+
+
     output = trainer.train()
-    # return trainer.train()
+    
+    # # Save only the LoRA weights to LoRA DB
+    if cfg.MODEL.LORA.ENABLED == True:
+        trainer.model.module.save_pretrained(cfg.MODEL.LORA.DB_PATH)
+    return output
 
 
 if __name__ == "__main__":

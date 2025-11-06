@@ -30,7 +30,8 @@ python train_net.py --config $config \
  --dist-url "auto" \
  --resume \
  OUTPUT_DIR $output \
- MODEL.WEIGHTS models/model_final.pth \
+ # MODEL.WEIGHTS models/model_final.pth \
+ MODEL.WEIGHTS output/final_adapters_outputs/cs/model_0009999.pth \
  $opts
 
 # sh eval.sh $config $gpus $output $opts
