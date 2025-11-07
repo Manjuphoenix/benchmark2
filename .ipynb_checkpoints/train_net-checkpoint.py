@@ -1000,7 +1000,10 @@ def main(args):
         for m in ddp_model.modules():
             m._forward_hooks.clear()
         # trainer.model.base_model.model.reset_forward_hooks()
-        # trainer.model.print_trainable_parameters()
+        trainer.model.module.print_trainable_parameters()
+
+
+    # trainer.resume_or_load(resume=args.resume)
 
 
     output = trainer.train()

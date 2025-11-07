@@ -612,7 +612,7 @@ class Trainer(DefaultTrainer):
         #     self.model, broadcast_buffers=False, find_unused_parameters=True
         # )
         self.model = create_ddp_model(
-            self.model, broadcast_buffers=False
+            self.model, broadcast_buffers=False,
         )
         self._trainer = (AMPTrainer if cfg.SOLVER.AMP.ENABLED else SimpleTrainer)(
             self.model, self.data_loader, self.optimizer
@@ -968,7 +968,7 @@ def main(args):
 
     trainer.resume_or_load(resume=args.resume)
 
-    # Add lora to the base model, reset the necessary model confgis/parameters to train lora
+    # # Add lora to the base model, reset the necessary model confgis/parameters to train lora
     # if cfg.MODEL.LORA.ENABLED:
     #     peft_model = add_lora(cfg, trainer.model)
     #     trainer.reset_trainer(cfg, peft_model)
@@ -1000,7 +1000,7 @@ def main(args):
         for m in ddp_model.modules():
             m._forward_hooks.clear()
         # trainer.model.base_model.model.reset_forward_hooks()
-        # trainer.model.print_trainable_parameters()
+        trainer.model.module.print_trainable_parameters()
 
 
     # trainer.resume_or_load(resume=args.resume)

@@ -187,7 +187,7 @@ class SED(nn.Module):
                     each class for each pixel.
         """
 
-        torch.cuda.memory._record_memory_history(max_entries=100000)
+        # torch.cuda.memory._record_memory_history(max_entries=100000)
         # print("----____-----___---____----_____", torch.cuda.memory_summary(), "-___--------_____----____---____-")
 
         images = [x["image"].to(self.device) for x in batched_inputs]
@@ -244,8 +244,8 @@ class SED(nn.Module):
                 loss = F.binary_cross_entropy_with_logits(output_, _targets)
                 losses.update({f"loss_sem_seg_{i}" : loss})
                 
-            torch.cuda.memory._dump_snapshot("/home/SED/profilers/profiler.pickle")
-            torch.cuda.memory._record_memory_history(enabled=None)
+            # torch.cuda.memory._dump_snapshot("/home/SED/profilers/profiler.pickle")
+            # torch.cuda.memory._record_memory_history(enabled=None)
             # import gc
             # gc.collect()
             # del images, clip_images, clip_features, images_resized, clip_vis_dense, fusion_features, outputs

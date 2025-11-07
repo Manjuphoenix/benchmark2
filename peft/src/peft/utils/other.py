@@ -154,7 +154,6 @@ def prepare_model_for_kbit_training(model, use_gradient_checkpointing=True, grad
                 (param.dtype == torch.float16) or (param.dtype == torch.bfloat16)
             ) and param.__class__.__name__ != "Params4bit":
                 param.data = param.data.to(torch.float32)
-                # param.data = param.data.to(torch.float16)
 
     if (
         loaded_in_kbit
