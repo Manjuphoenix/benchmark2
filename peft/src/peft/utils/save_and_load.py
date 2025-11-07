@@ -352,6 +352,8 @@ def _insert_adapter_name_into_state_dict(
     state_dict: dict[str, torch.Tensor], adapter_name: str, parameter_prefix: str
 ) -> dict[str, torch.Tensor]:
     """Utility function to remap the state_dict keys to fit the PEFT model by inserting the adapter name."""
+    # import ipdb; ipdb.set_trace()
+    
     peft_model_state_dict = {}
     for key, val in state_dict.items():
         if parameter_prefix in key:
@@ -396,6 +398,24 @@ def set_peft_model_state_dict(
     state_dict = peft_model_state_dict
     # print('state_dict---',state_dict.keys())
     # print(hey)
+
+    # import ipdb; ipdb.set_trace()
+
+    # for k in list(checkpoint["model"].keys()):
+    #     if k.startswith("sem_seg_head"):
+    #         new_k = "base_model.model.module." + k
+    #         #new_k = new_k[k.find("sem_seg_head"):]
+    #         new_k = new_k.replace("lora_B.IE_Segmentation.", "lora_B.default.")
+    #         new_k = new_k.replace("lora_A.IE_Segmentation.", "lora_A.default.")
+    #         checkpoint['model'][new_k] = checkpoint['model'].pop(k)
+
+    #     elif k.startswith("upsample"):
+    #         new_k1 =  "base_model.model.module." + k
+    #         new_k = new_k.replace("lora_B.IE_Segmentation.", "lora_B.default.")
+    #         new_k = new_k.replace("lora_A.IE_Segmentation.", "lora_A.default.")
+    #         checkpoint["model"][new_k1] = checkpoint["model"].pop(k)
+
+    # import ipdb; ipdb.set_trace()
 
     # handle auxiliary training wrappers such as ModulesToSaveWrapper and TrainableTokensWrapper by getting each of
     # them and translating saved state dict key (which does not include the adapter name) to loaded state dict key
@@ -456,9 +476,21 @@ def set_peft_model_state_dict(
                     del state_dict[k]
                     del state_dict[k.replace("_topk_indices", "_topk_weights")]
 
+        ############# to correct the keys obtained through DPP ##########################
+        for k in list(state_dict.keys()):
+            if "model.module" in k:
+                new_k = k.replace("model.module", "model")
+                state_dict[new_k] = state_dict.pop(k)
+        
+        ####################################################################################
+
+        # import ipdb; ipdb.set_trace()
+
         peft_model_state_dict = _insert_adapter_name_into_state_dict(
             state_dict, adapter_name=adapter_name, parameter_prefix=parameter_prefix
         )
+
+        # import ipdb;ipdb.set_trace()
 
         if config.peft_type == PeftType.ADALORA:
             rank_pattern = config.rank_pattern

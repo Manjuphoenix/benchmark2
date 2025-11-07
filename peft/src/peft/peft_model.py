@@ -565,6 +565,8 @@ class PeftModel(PushToHubMixin, torch.nn.Module):
                 low_cpu_mem_usage=low_cpu_mem_usage,
             )
 
+        # import ipdb; ipdb.set_trace()
+
         load_result = model.load_adapter(
             model_id,
             adapter_name,
@@ -1336,6 +1338,7 @@ class PeftModel(PushToHubMixin, torch.nn.Module):
         if torch_device is None:
             torch_device = infer_device()
 
+        # import ipdb; ipdb.set_trace()
         if adapter_name not in self.peft_config:
             # load the config
             peft_config = PEFT_TYPE_TO_CONFIG_MAPPING[
@@ -1369,6 +1372,8 @@ class PeftModel(PushToHubMixin, torch.nn.Module):
         tuner = self.peft_config[adapter_name].peft_type
         tuner_prefix = PEFT_TYPE_TO_PREFIX_MAPPING.get(tuner, "")
         adapter_missing_keys = []
+
+        # import ipdb; ipdb.set_trace()
 
         # Filter missing keys specific to the current adapter and tuner prefix.
         for key in load_result.missing_keys:

@@ -135,7 +135,7 @@ class SemSegEvaluator(SemSegEvaluator):
             with PathManager.open(file_path, "w") as f:
                 f.write(json.dumps(self._predictions))
 
-        import ipdb; ipdb.set_trace()
+        # import ipdb; ipdb.set_trace()
         acc = np.full(self._num_classes, np.nan, dtype=float)
         iou = np.full(self._num_classes, np.nan, dtype=float)
         
