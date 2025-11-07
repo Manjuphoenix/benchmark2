@@ -31,7 +31,7 @@ python train_net.py --config $config \
  --resume \
  OUTPUT_DIR $output \
  # MODEL.WEIGHTS models/model_final.pth \
- MODEL.WEIGHTS output/final_adapters_outputs/bdd/model_0009999.pth \
+#  MODEL.WEIGHTS output/final_adapters_outputs/bdd/model_0009999.pth \
  $opts
 
 # sh eval.sh $config $gpus $output $opts

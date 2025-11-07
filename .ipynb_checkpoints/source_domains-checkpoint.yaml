@@ -1,0 +1,35 @@
+# - IE_Segmentation
+# - acdc-rain
+# - acdc-snow
+# - acdc-fog
+# - acdc-night
+# - idd
+# - idd_conv
+- acdc-rain
+- acdc-snow
+- acdc-fog                           
+- acdc-night
+# - muses-clear-day
+# - muses-clear-night
+# - muses-snow-day
+# - muses-snow-night
+# - muses-fog-day
+# - muses-fog-night
+# - muses-rain-day
+# - muses-rain-night
+# - muses_conv-clear-day
+# - muses_conv-clear-night
+# - muses_conv-snow-day
+# - muses_conv-snow-night
+# - muses_conv-fog-day
+# - muses_conv-fog-night
+# - muses_conv-rain-day
+# - muses_conv-rain-night 
+# # - idd
+# - idd_conv
+# - bdd_conv
+# - bdd
+# - cs-normal
+# - cs_conv-normal
+# - mv
+# - mv_conv
