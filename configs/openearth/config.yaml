@@ -20,12 +20,9 @@ MODEL:
     NAME: "OpenVocabHead"
     IN_FEATURES: ["res2", "res3", "res4"]
     IGNORE_VALUE: 255
-    # NUM_CLASSES: 171
-    NUM_CLASSES: 150
-    # TRAIN_CLASS_JSON: "datasets/coco.json"
-    # TEST_CLASS_JSON: "datasets/coco.json"
-    TRAIN_CLASS_JSON: "datasets/ade150.json"
-    TEST_CLASS_JSON: "datasets/ade150.json"
+    NUM_CLASSES: 9
+    TRAIN_CLASS_JSON: "datasets/openearth.json"
+    TEST_CLASS_JSON: "datasets/openearth.json"
     CLIP_PRETRAINED: "ViT-L/14@336px"
     PROMPT_DEPTH: 0
     PROMPT_LENGTH: 0
@@ -52,8 +49,8 @@ DATASETS:
   # TRAIN: ("ade20k_150_train_sem_seg",)
   # TEST: ("ade20k_150_test_sem_seg",)
   # TRAIN: ("acdc-rain_sem_seg_train","acdc-fog_sem_seg_train","acdc-snow_sem_seg_train","acdc-night_sem_seg_train")
-  TRAIN: ("acdc-night_sem_seg_train",)
-  TEST: ("acdc-night_sem_seg_val",)
+  TRAIN: ("openearth_sem_seg_train",)
+  TEST: ("openearth_sem_seg_val",)
   # TEST: ("IE_Segmentation_sem_seg_val",)
 SOLVER:
   IMS_PER_BATCH: 2

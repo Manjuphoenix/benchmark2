@@ -68,9 +68,12 @@ class EmbeddingManager:
 
         print(f"Embedding dataset from '{dataset_path}' ...")
         dataset_embeddings = []
+        
+        # if "OpenEarthMap" in str(dataset_path):
+        #     import ipdb; ipdb.set_trace()
 
         # IDD has both png and jpg images in train set
-        image_files = list(dataset_path.rglob("*.png")) + list(dataset_path.rglob("*.jpg"))
+        image_files = list(dataset_path.rglob("*.png")) + list(dataset_path.rglob("*.jpg")) + list(dataset_path.rglob("*.tif"))
     
         if not image_files:
             print(f"Warning: No images found in dataset path '{dataset_path}'.")

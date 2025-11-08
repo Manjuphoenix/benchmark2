@@ -245,6 +245,8 @@ class DomainOrchestrator:
         if lora_path is None:
             lora_path = self.lora_db_path / domain_name
 
+        # if "open" in domain_name:
+            # import ipdb; ipdb.set_trace()
         statistics: Dict[str, npt.NDArray] = self.embedding_manager.calculate_statistics(
             domain_name, lora_path, train_dataset_path,
         )

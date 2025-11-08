@@ -144,7 +144,7 @@ def get_domain_args(
         "cartr": "configs/cart/rgb/cart-rgb.yaml",
         "carti": "configs/cart/ir/cart-ir.yaml",
         "IE_Segmentation_ir": "configs/indraeye/ir/indraeye-ir.yaml",
-        "openearth": "configs/openearth/openearth-ir.yaml",
+        "openearth": "configs/openearth/openearth.yaml",
     }
 
     datasets = {
@@ -302,6 +302,7 @@ def get_domain_args(
         ],
         resume=True,
     )
+    
 
     if get_cofing_only:
         return args

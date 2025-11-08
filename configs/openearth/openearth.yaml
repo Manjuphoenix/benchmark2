@@ -14,15 +14,9 @@ MODEL:
     NAME: "SEDHead"
     IN_FEATURES: ["res2", "res3", "res4", "res5"]
     IGNORE_VALUE: 255
-    # NUM_CLASSES: 171
-    # NUM_CLASSES: 150
-    NUM_CLASSES: 19
-    # TRAIN_CLASS_JSON: "datasets/coco.json"
-    # TEST_CLASS_JSON: "datasets/coco.json"
-    # TRAIN_CLASS_JSON: "datasets/ade150.json"
-    # TEST_CLASS_JSON: "datasets/ade150.json"
-    TRAIN_CLASS_JSON: "datasets/cs19.json"
-    TEST_CLASS_JSON: "datasets/cs19.json"
+    NUM_CLASSES: 9
+    TRAIN_CLASS_JSON: "datasets/openearth.json"
+    TEST_CLASS_JSON: "datasets/openearth.json"
     CLIP_PRETRAINED: "Convnext-L"
     # CLIP_PRETRAINED: "ViT-L/14@336px"
     PROMPT_DEPTH: 0
