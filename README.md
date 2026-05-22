@@ -1,6 +1,5 @@
 
 ## Introduction
-<img width="80%" src="assets/main_arch.png"><br>
 - We propose an encoder-decoder for open-vocabulary semantic segmentation comprising a hierarchical encoder-based cost map generation and a gradual fusion decoder.
 - We introduce a category early rejection scheme to reject non-existing categories at the early layer, which aids in markedly 
   increasing the inference speed without any significant degradation in  segmentation performance. For instance, it provides 4.7  times acceleration on PC-459.
